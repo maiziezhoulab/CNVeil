@@ -4,7 +4,7 @@
 - [CNVeil-Python](#CNVeil-Python)
   - [Installation python version CNVeil](#install-python-version-cnveil)
   - [Run CNVeil-Python](#Run-CNVeil-Python)
-- CNVeil(Python version)
+- CNVeil-R
 - Benchmarking
 
 ## CNVeil-Python
@@ -16,9 +16,9 @@ git clone git@github.com:maiziezhoulab/CNVeil.git
 ```
 To set up the environment, you should have [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) installed on your machine. Then simple run
 ```
-conda env create -f CNVeil/python/environment.yml
+conda env create -f CNVeil/Python/environment.yml
 ```
-You will have a vitual enviroment called CNVeil installed. You must load this virtual environment before you run the CNVeil-python pipeline.
+You will have a virtual environment called CNVeil installed. You must load this virtual environment before you run the CNVeil-python pipeline.
 ```
 conda activate CNVeil
 ```
@@ -32,7 +32,7 @@ The main code for CNVeil-python is 'CNVeil/python/CNVeil.py`. The input argument
                         Input directory that contains BAM files; if you want to provide multiple directories, separate them by blank
                         space (default: None)
   --pre_bam_list PRE_BAM_LIST [PRE_BAM_LIST ...], -baml PRE_BAM_LIST [PRE_BAM_LIST ...]
-                        either bam_dirs or pre_bam_list need to be provided;provide multiple bam files, separate them by blank space
+                        either bam_dirs or pre_bam_list need to be provided; provide multiple bam files, separate them by blank space
                         (default: None)
   --reference REFERENCE, -ref REFERENCE reference genome path
   --reftype {hg19,hg38}, -rt {hg19,hg38}
@@ -52,7 +52,7 @@ The main code for CNVeil-python is 'CNVeil/python/CNVeil.py`. The input argument
 An example command to run the pipeline is provided below:
 
 ```
-python3 CNVeil/python/CNVeil.py \
+python3 CNVeil/Python/CNVeil.py \
 -bam <bam_dir> \
 -ref <refernce_file> \
 -rt <hg19 or hg38> \
