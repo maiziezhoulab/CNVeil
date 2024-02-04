@@ -2,7 +2,7 @@
 
 ## Table of content
 - [CNVeil-Python](#CNVeil-Python)
-  - [Installation python version CNVeil](#install-python-version-cnveil)
+  - [Install python version CNVeil](#install-python-version-cnveil)
   - [Run CNVeil-Python](#Run-CNVeil-Python)
 - CNVeil-R
 - Benchmarking
