@@ -1,14 +1,14 @@
 # CNVeil
 
 ## Table of content
-- CNVeil(Python version)
-  - [Installation](#install-through-github)
-  - [
+- [CNVeil-Python](#CNVeil-Python)
+  - [Installation python version CNVeil](#install-python-version-cnveil)
+  - [Run CNVeil-Python](#Run-CNVeil-Python)
 - CNVeil(Python version)
 - Benchmarking
 
-## CNVeil (Python version)
-### Installation
+## CNVeil-Python
+### Install python version CNVeil
 
 You can install python version CNVeil through github
 ```
@@ -23,7 +23,7 @@ You will have a vitual enviroment called CNVeil installed. You must load this vi
 conda activate CNVeil
 ```
 
-### Run the pipeline
+### Run CNVeil-Python
 
 The main code for CNVeil-python is 'CNVeil/python/CNVeil.py`. The input arguments for this code are listed below:
 
