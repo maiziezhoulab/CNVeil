@@ -121,7 +121,7 @@ Rscript call_cn.r --input_dir /path/to/input --output_dir /path/to/output --pref
 ## Benchmark
 ### Prepare scDNA-seq data
 
-Here is an example of generating the bam files from fastq file downloaded from NCBI. The patient is named as 'KTN126'.
+Here is an example of generating the individual bam files from fastq file downloaded from NCBI. The patient is named as 'KTN126'.
 
 ```
 patient="KTN126"
