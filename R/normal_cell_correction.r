@@ -8,12 +8,8 @@ library(SCOPE)
 library(DescTools)
 
 work_path <- commandArgs(trailingOnly = TRUE)[1]
-min_ploidy <- as.numeric(commandArgs(trailingOnly = TRUE)[2])
-max_ploidy <- as.numeric(commandArgs(trailingOnly = TRUE)[3])
-K <- commandArgs(trailingOnly = TRUE)[4]
-sigma <- commandArgs(trailingOnly = TRUE)[5]
-normal_cell_file <- commandArgs(trailingOnly = TRUE)[6]
-saved_path <- commandArgs(trailingOnly = TRUE)[7]
+normal_cell_file <- commandArgs(trailingOnly = TRUE)[2]
+saved_path <- commandArgs(trailingOnly = TRUE)[3]
 
 read_matrix <- function(file_name) {
   f <- file(file_name, "r")
