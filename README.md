@@ -8,7 +8,7 @@
   - [Install R version CNVeil](#install-R-version-cnveil)
   - [Run CNVeil-R](#Run-CNVeil-R)
 - Benchmarking
-  - Prepare scDNA-seq data(#prepare-scDNA-seq-data)
+  - [Prepare scDNA-seq data](#prepare-scDNA-seq-data)
   - Run Tools
 
 ## CNVeil-Python
