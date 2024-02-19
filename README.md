@@ -181,7 +181,7 @@ while read line; do
         ${bedpath_hg19}/$line'_hg19_unlifted_rmdup.bed'
 done < $file
 ```
-Zipped the bed file if neccesary.
+Zipped the bed file, which is recommended for the Ginkgo web platform to analyze.
 ```
 cd ${bedpath_hg19}
 output_path=${srapath}/'bedpath_SraAccList'${patient}'_zipped'
