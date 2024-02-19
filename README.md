@@ -116,9 +116,7 @@ Rscript normal_cell_correction.r /path/to/work/directory /path/to/normal/cell/fi
 Finally, we could call CNVs from the standardized matrix. Please run the call_cn.r. The input arguments for this code are listed below:
 
 ```
-
 Rscript call_cn.r --input_dir /path/to/input --output_dir /path/to/output --prefix Sample --cell_node /path/to/cell_node.txt --change_rate_mode q --ploidy_mode gl
-
 ```
 
 
