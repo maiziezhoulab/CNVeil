@@ -112,7 +112,7 @@ main <- function() {
 
  var_norm_cell <- get_norm_cell(Y, normal_cell_file = "None", quan_vec = 0.4, gini_threshold = 0.12)
  cov_matrix <- Bias_norm(Y, var_norm_cell$norm_index)
- saveRDS(cov_matrix, paste0(result_path, "RDmatrix.rds"))
+ saveRDS(cov_matrix, paste0(result_path, "/RDmatrix.rds"))
 }
  
 main()
