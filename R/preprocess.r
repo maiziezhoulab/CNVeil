@@ -10,7 +10,6 @@ ref <- commandArgs(trailingOnly = TRUE)[2]
 bam_dir <- list.files(commandArgs(trailingOnly = TRUE)[3], commandArgs(trailingOnly = TRUE)[4])
 bam_file <- list.files(commandArgs(trailingOnly = TRUE)[3], commandArgs(trailingOnly = TRUE)[4], full.names = TRUE)
 bin_size <- as.integer(commandArgs(trailingOnly = TRUE)[5])
-ref_type <- commandArgs(trailingOnly = TRUE)[6]
 
 construct_bins <- function(ref, bin_size, work_path) {
   cat("Constructing genome-wide consecutive bins...\n")
@@ -69,7 +68,7 @@ construct_bins <- function(ref, bin_size, work_path) {
 cal_gc <- function(bed_file) {
   cat("Calculating GC content...\n")
   genome_gc <- file.path(work_path, "genome_gc.bed")
-  gc <- get_gc(ref_raw, hgref = ref_type)
+  gc <- get_gc(ref_raw, hgref = ref)
   gc <- as.character(gc)
   pos <- read.table(paste0(work_path,"genome_consecutive_bins.bed"), header = 0)
   writeLines(paste(pos$V1, pos$V2, pos$V3, gc), con = genome_gc)
@@ -78,7 +77,7 @@ cal_gc <- function(bed_file) {
 cal_map <- function(bed_file) {
   cat("Calculating mappability...\n")
   genome_map <- file.path(work_path, "genome_mappability.tab")
-  mapp <- get_mapp(ref_raw, hgref = ref_type)
+  mapp <- get_mapp(ref_raw, hgref = ref)
   mapp <- as.character(mapp)
   writeLines(mapp, con = genome_map)
 }
@@ -228,7 +227,7 @@ main <- function() {
   sampname_raw <- sapply(strsplit(bam_files, ".", fixed = TRUE), "[", 1)
   bamdir <- file.path(bamfolder, bam_files)
   bambedObj <- get_bam_bed(bamdir = bamdir, sampname = sampname_raw, 
-                         hgref = ref_type, resolution = 500)
+                         hgref = ref, resolution = 500)
   ref_raw <- bambedObj$ref
   construct_bins(ref, bin_size)
   cal_gc(file.path(work_path, "genome_consecutive_bins.bed"))
