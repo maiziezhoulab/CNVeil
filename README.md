@@ -118,5 +118,74 @@ Finally, we could call CNVs from the standardized matrix. Please run the call_cn
 ```
 Rscript call_cn.r --input_dir /path/to/input --output_dir /path/to/output --prefix Sample --cell_node /path/to/cell_node.txt --change_rate_mode q --ploidy_mode gl
 ```
+## Benchmark
+### Prepare scDNA-seq data
 
+Here is an example of generating the bam files from fastq file downloaded from NCBI. The patient is named as 'KTN126'.
 
+```
+patient="KTN126"
+file=YOUR_PATH_FOR_SRR_LIST
+srapath=YOUR_PATH_TO_STORE_SRA_FILE
+fastqpath=YOUR_PATH_TO_STORE_FASTQ_FILE
+mkdir ${fastqpath}
+
+ while read line; do
+     echo $line
+     YOUR_PATH_TO_SRATOOLKIT/bin/fastq-dump -I --split-files $srapath$line"/"$line".sra" 
+     -O $fastqpath$line
+ done < $file
+```
+Generate the fastq files from the. sra file with sra toolkit.  
+```
+ml Intel/2017.4.196 BWA/0.7.17
+ml GCC/11.3.0 SAMtools/1.18
+sampath=${srapath}/sampath_SraAccList${patient}/
+align_dir=${srapath}/sampath_SraAccList${patient}/
+readgroup_path=${srapath}/bampath_SraAccList${patient}_readgroup/
+dedup_path=${srapath}/bampath_SraAccList${patient}_dedup/
+
+mkdir ${sampath} ${readgroup_path} ${dedup_path}
+ 
+while read line; do
+    echo $line
+    cd $align_dir 
+     bwa mem -M -t 8 YOUR_PATH_TO_REF_GENOME_FILE $fastqpath/$line/"$line"_1.fastq $fastqpath/$line/"$line"_2.fastq > $align_dir/"$line".sam
+     samtools view -bS $align_dir/"$line".sam > $align_dir/"$line".bam 
+     java -jar YOUR_PATH_TO_PICARD/picard.jar SortSam -I $align_dir/"$line".bam -SORT_ORDER coordinate -O $align_dir/"$line"_hg38.sorted.bam 
+     java -jar YOUR_PATH_TO_PICARD/picard.jar AddOrReplaceReadGroups -I $align_dir/"$line"_hg38.sorted.bam -O $readgroup_path/"$line"_hg38.sorted.rg.bam -RGID $readgroup_path/"$line"_hg38/ -RGLB NAVIN_Et_Al -RGPL ILLUMINA -RGPU machine -RGSM $readgroup_path/"$line"_hg38/
+     java -jar YOUR_PATH_TO_PICARD/picard.jar MarkDuplicates -REMOVE_DUPLICATES true -I $readgroup_path/"$line"_hg38.sorted.rg.bam -O $dedup_path/"$line"_hg38.sorted.rg.dedup.bam -METRICS_FILE $dedup_path/"$line"_hg38.sorted.rg.dedup.metrics.txt -PROGRAM_RECORD_ID MarkDuplicates -PROGRAM_GROUP_VERSION null -PROGRAM_GROUP_NAME MarkDuplicates
+     java -jar YOUR_PATH_TO_PICARD/picard.jar BuildBamIndex -I $dedup_path/"$line"_hg38.sorted.rg.dedup.bam -O $dedup_path/"$line"_hg38.sorted.rg.dedup.bai
+done < $file
+```
+Generate the bam files after alignment.
+
+Next, we generate the bed files with hg19/hg38 reference.
+```
+ml GCC/8.2.0 BEDTools/2.28.0
+bedpath_hg38=${srapath}/bedpath_SraAccList${patient}_hg38
+bedpath_hg19=${srapath}/bedpath_SraAccList${patient}_hg19
+mkdir ${bedpath_hg38} ${bedpath_hg19}
+while read line; do
+    echo $line
+    bamToBed -i $dedup_path/$line'_hg38.sorted.rg.dedup.bam' > \
+        ${bedpath_hg38}/$line'_grch38_rmdup.bed'
+done < $file
+
+while read line; do
+    echo $line
+    YOUR_PATH_TO_LIFTOVER/liftOver \
+        ${bedpath_hg38}/$line'_grch38_rmdup.bed' \
+        'YOUR_PATH_TO_LIFTOVER_CHAINFILE/liftOver_ChainFiles/hg38ToHg19.over.chain' \
+        ${bedpath_hg19}/$line'_hg19_rmdup.bed' \
+        ${bedpath_hg19}/$line'_hg19_unlifted_rmdup.bed'
+done < $file
+```
+Zipped the bed file if neccesary.
+```
+cd ${bedpath_hg19}
+output_path=${srapath}/'bedpath_SraAccList'${patient}'_zipped'
+mkdir ${output_path}
+for file in *"_hg19_rmdup.bed"; do
+    gzip -c "$file" > "${output_path}/${file%.bed}.bed.gz"
+```
