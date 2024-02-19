@@ -68,6 +68,57 @@ python3 CNVeil/Python/CNVeil.py \
 ```
 After the pipeline is finished, you will see the final CNV matrix in CNVeil_output/CNV_<sample_name>.csv.
 
+## CNVeil-R
+### Install R version CNVeil
 
+You can install R version CNVeil by loading all the necessary packages described below first, make sure the R version is above 4.2.1:
+```
+optparse/1.7.3
+data.table/1.14.2
+ggplot2/3.4.4
+cluster/2.1.3
+stats/4.2.1
+dplyr/1.0.9
+matrixStats/1.2.0
+kernlab/0.9.31
+pracma/2.3.8
+gtools/3.9.5
+DescTools/0.99.45
+GenomicRanges1.50.2
+Rsamtools/2.14.0
+BSgenome.Hsapiens.UCSC.hg38/1.4.5
+SCOPE/1.10.0
+WGSmapp/1.10.0
+
+### Run CNVeil-R
+
+To establish read depth matrix from bam file, please run the preprocess.r first. The input arguments for this code are listed below:
+
+```
+1. work_path: Path to the working directory.
+2. ref: Type of the reference.
+3. bam_path: Directory containing BAM files.
+4. pattern: Pattern to match the BAM files (if needed).
+5. bin_size: Size of the bins for the read depth matrix.
+```
+Run the script as follows:
+```
+Rscript preprocess.r [work_path] [ref] [bam_path] [pattern] [bin_size] 
+```
+The major result for this step is named as "genome_cov.bed". 
+
+To correct the bias by normal cell, please use normal_cell_correction.r for to obtain RDmatrix.rds. 
+Run the script as follows:
+```
+Rscript normal_cell_correction.r /path/to/work/directory /path/to/normal/cell/file(optional) /path/to/save/output/
+```
+
+Finally, we could call CNVs from the standardized matrix. Please run the call_cn.r. The input arguments for this code are listed below:
+
+```
+
+Rscript call_cn.r --input_dir /path/to/input --output_dir /path/to/output --prefix Sample --cell_node /path/to/cell_node.txt --change_rate_mode q --ploidy_mode gl
+
+```
 
 
