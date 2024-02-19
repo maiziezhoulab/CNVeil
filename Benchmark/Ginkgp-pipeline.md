@@ -15,7 +15,7 @@ Ginkgo only has a limited number of references which means that it only has hg19
 
 # For scDNA-seq data
 ### Prepare the data for Ginkgo (grch38 -> hg19)
-Firstly, generate the bed files from bam files and use `liftOver` to convert the grch38-ref-based bed files to hg19-ref-based bed files. Example code chunck is provided here[README.md].
+Firstly, generate the bed files from bam files and use `liftOver` to convert the grch38-ref-based bed files to hg19-ref-based bed files. Example code chunck is provided here[Benckmark](https://github.com/maiziezhoulab/CNVeil/blob/main/README.md).
 
 ### Use Ginkgo to infer CNV
 Upload the hg19-ref-based bed files to the Ginkgo website. Choose `hg19` as reference and choose bin-based before running.
