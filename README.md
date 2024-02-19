@@ -4,7 +4,7 @@
 - [CNVeil-Python](#CNVeil-Python)
   - [Install python version CNVeil](#install-python-version-cnveil)
   - [Run CNVeil-Python](#Run-CNVeil-Python)
-- CNVeil-R(#CNVeil-R)
+- [CNVeil-R](#CNVeil-R)
   - [Install R version CNVeil](#install-R-version-cnveil)
   - [Run CNVeil-R](#Run-CNVeil-R)
 - Benchmarking
