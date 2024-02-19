@@ -7,7 +7,7 @@
 - [CNVeil-R](#CNVeil-R)
   - [Install R version CNVeil](#install-R-version-cnveil)
   - [Run CNVeil-R](#Run-CNVeil-R)
-- Benchmarking
+- Benchmark
   - [Prepare scDNA-seq data](#prepare-scDNA-seq-data)
   - Run Tools
 
