@@ -13,7 +13,7 @@ The path of vignettes written by the authors is:
 http://bioconductor.org/packages/release/bioc/vignettes/AneuFinder/inst/doc/AneuFinder.pdf
 ```
 
-# For our data
+# For scDNA-seq data
 ### Mappability correction
 The first step in the workflow is to produce a reference file for mappability correction.  It's also possible to proceed without mappability correction, in which case the algorithm defaults to using fixed-width bins. 
 
@@ -95,9 +95,3 @@ Note that, in this data chunk:
 - `binsizes` should be set to the specific bin size you used.
 
 - `GC.BSgenome` should be changed to `BSgenome.Hsapiens.UCSC.hg19` or so if you generate your data using hg19 reference.
-
-
-
-
-
-
