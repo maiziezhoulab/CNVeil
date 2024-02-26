@@ -29,9 +29,6 @@ After preparation, we can use the tool `SeCNV` to infer CNV:
 module load Anaconda3/5.0.1
 source /home/liy109/.conda/envs/SeCNV
 
-ml GCC/10.2.0
-ml SAMtools/1.12
-
 cd Scripts 
 python SeCNV.py /data/maiziezhou_lab/Datasets/singlecell_data/SeCNV/T10_hg19/Input /data/maiziezhou_lab/Datasets/singlecell_data/SeCNV/T10_hg19/output hg19.fa
 ```
