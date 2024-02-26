@@ -59,7 +59,6 @@ For the installation of MATLAB Compiler Runtime, I went to the website they prov
 ```bash
 echo "Step 3. detect single-cell copy number alterations......"
 # the path to MCR v91 needs to be specified
-# module load MATLAB/2023b
 ./hmm/run_SCHMM.sh /data/maiziezhou_lab/Weiman/software/MCR/v91 $output_dir/lrc.txt $output_dir 10 >> $log_file 2>&1
 
 current=`date "+%Y-%m-%d %H:%M:%S"`
