@@ -22,7 +22,7 @@ devtools::install_github("rujinwang/WGSmapp")
 devtools::install_github("rujinwang/SCOPE")
 ```
 
-# For our data
+# For scDNA-seq data
 ### 1. Loading
 Loading the bam files:
 
