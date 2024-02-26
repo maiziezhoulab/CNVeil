@@ -8,7 +8,7 @@ https://github.com/rujinwang/SCOPE](https://github.com/zhyu-lab/rccae)
 # For scDNA-seq data
 I used the following script for running rcCAE on KTN302 patients. This script is originally from their Github. The input should be the result after the generation of the read group and removing the duplicate. Please see the details in the preparation of the data.
 
-```
+```bash
 root_dir="/data/maiziezhou_lab/Datasets/singlecell_data/TNBC/"
 bam1=$root_dir"DNA_bowtie2_rmdup/DNA3020_rmdup_rg_cb"
 bam2=$root_dir"DNA_bowtie2_rmdup/DNA3022_rmdup_rg_cb"
@@ -25,8 +25,6 @@ chromosomes=(chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
 # Convert the array to a comma-separated string
 chrlist=$(IFS=,; echo "${chromosomes[*]}")
 
-# chroms=1,2,3
-
 test -e $log_file && rm $log_file
 
 test ! -e $output_dir && mkdir -p $output_dir
@@ -35,7 +33,7 @@ current=`date "+%Y-%m-%d %H:%M:%S"`
 seconds_s=`date -d "$current" +%s`
 ```
 After set your path to the input folder and the output folder, you can follow the steps in the following:
-```
+```bash
 echo "Step 1. get read counts, GC-content and mappability......"
 ./prep/bin/prepInput -b $bam1 -r $ref -m $map -B $barcodes1 -c $chrlist -s 500000 -q 0 -o $output_dir/readcounts1.txt > $log_file 2>&1
 ./prep/bin/prepInput -b $bam2 -r $ref -m $map -B $barcodes2 -c $chrlist -s 500000 -q 0 -o $output_dir/readcounts2.txt > $log_file 2>&1
@@ -50,7 +48,7 @@ paste -d, "$output_file.tmp1" "$output_file.tmp2" >> "$output_file"
 rm "$output_file.tmp1" "$output_file.tmp2"
 ```
 I use CPU to run rcCAE, to do that, you only need to disable the cuda function in the script.
-```
+```bash
 echo "Step 2. detect tumor clones and denoise read counts data......"
 ml Anaconda3/2023.03-1
 # module load CUDA/11.7.0
@@ -58,7 +56,7 @@ source activate rccae
 python ./cae/train.py --input $output_dir/readcounts.txt --epochs 50 --batch_size 64 --lr 0.0001 --latent_dim 3 --seed 0 --output $output_dir >> $log_file 2>&1
 ```
 For the installation of MATLAB Compiler Runtime, I went to the website they provided and installed the version they specified. Noted, you should also revise the matlabruntime_installer_input.txt before the installation to initialize this process.
-```
+```bash
 echo "Step 3. detect single-cell copy number alterations......"
 # the path to MCR v91 needs to be specified
 # module load MATLAB/2023b
