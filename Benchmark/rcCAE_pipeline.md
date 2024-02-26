@@ -57,7 +57,7 @@ ml Anaconda3/2023.03-1
 source activate rccae
 python ./cae/train.py --input $output_dir/readcounts.txt --epochs 50 --batch_size 64 --lr 0.0001 --latent_dim 3 --seed 0 --output $output_dir >> $log_file 2>&1
 ```
-For the installation of MATLAB Compiler Runtime, I went to the website they provided and installed the version the specified.
+For the installation of MATLAB Compiler Runtime, I went to the website they provided and installed the version they specified. Noted, you should also revise the matlabruntime_installer_input.txt before the installation to initialize this process.
 ```
 echo "Step 3. detect single-cell copy number alterations......"
 # the path to MCR v91 needs to be specified
