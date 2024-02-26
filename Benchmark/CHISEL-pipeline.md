@@ -144,8 +144,7 @@ patient='3020'
 base='/data/maiziezhou_lab/Zihang/CNV/'
 database=$base'dataset/TNBC/'
 file=$database'DNA_bowtie2_rmdup_bcftools_phasing/KTN'$patient'.txt'
-mkdir $base'CHISEL/CHISEL_bowtie2_rmdup_bcftools_whatshap/all_50kb'
-# cd $base'CHISEL/CHISEL_bowtie2_rmdup_bcftools_whatshap/all_50kb'
+mkdir $base'CHISEL/CHISEL_bowtie2_rmdup_bcftools_whatshap/all_50kb' 
 chisel -x $base'CHISEL/TNBC_bowtie2_rmdup_bcftools_whatshap/all_50kb' \
     -t $database'DNA_bowtie2_rmdup/DNA3020_rmdup_rg_cb/all_tumor_cells.bam' \
     -n $database'DNA_bowtie2_rmdup/DNA3022_rmdup_rg_cb/all_tumor_cells.bam' \
