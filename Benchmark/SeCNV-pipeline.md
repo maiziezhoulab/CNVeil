@@ -16,7 +16,6 @@ ml GCC/10.2.0
 ml SAMtools/1.12
 ```
 
-
 # For our data
 ### Prepare the data for SeCNV
 To run SeCNV, the bigwig files, hg19_mappability.bigWig and hg38_mappability.bigWig, should be downloaded from (https://drive.google.com/drive/folders/1XGuXa9muRtOiAjtz1J4gWO5Qk3c5-PwS) and put under the Script folder. And picard.jar file should also under the dataset folder.
@@ -27,20 +26,14 @@ Code chunk for generation of Input datasets (Using T10 dataset with hg19 referen
 module load Anaconda3/5.0.1
 source activate /home/liy109/.conda/envs/SeCNV
 
-
 ml Intel/2017.4.196 BWA/0.7.17
 ml GCC/10.2.0 SAMtools/1.12
-
-
-
-
 
 name="SraAccListT10"
 file=/data/maiziezhou_lab/Datasets/singlecell_data/Navin/raw_data/SRRlist_DNA/"$name".txt
 fastqpath=/data/maiziezhou_lab/Datasets/singlecell_data/Navin/raw_data/fastqpath_"$name"
 sampath=/data/maiziezhou_lab/Datasets/singlecell_data/Navin/raw_data/samBWA_"$name"/
 align_dir=/data/maiziezhou_lab/Datasets/singlecell_data/SeCNV/T10_hg19
-
 
 while read line; do
     echo $line
@@ -55,8 +48,6 @@ done < $file
 ```
 
 For other datasets, e.g. T16 and TNBC datasets with reference hg38. We only have to change the `name` and `data path` of the previous code chunk.
-
-
 
 ### Use SeCNV to infer CNV
 After preparation, we can use tool `SeCNV` to infer CNV:
