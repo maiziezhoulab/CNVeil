@@ -15,7 +15,7 @@ source /data/maiziezhou_lab/Zihang/conda/bin/activate
 conda activate chisel
 ```
 
-# For our data
+# For scDNA-seq data
 ### Prepare the data for CHISEL
 `chisel` function uses bam files containing CB:Z:` tags and 'Phased SNPs file' in tsv format as their input. So we need to prepare the data for that.
 
