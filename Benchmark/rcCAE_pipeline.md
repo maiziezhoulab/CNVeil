@@ -5,7 +5,7 @@ The package paths are:
 
 https://github.com/rujinwang/SCOPE](https://github.com/zhyu-lab/rccae)
 ```
-# For our data
+# For scDNA-seq data
 I used the following script for running rcCAE on KTN302 patients. This script is originally from their Github. The input should be the result after the generation of the read group and removing the duplicate. Please see the details in the preparation of the data.
 
 ```
