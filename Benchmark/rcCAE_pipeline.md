@@ -1,3 +1,14 @@
+# Orginal Vignettes
+The package paths are:
+
+```bash 
+
+https://github.com/rujinwang/SCOPE](https://github.com/zhyu-lab/rccae)
+```
+
+I used the following script to for running rcCAE on KTN302 patients. This script is originally from their Github.
+
+```
 root_dir="/data/maiziezhou_lab/Datasets/singlecell_data/TNBC/"
 bam1=$root_dir"DNA_bowtie2_rmdup/DNA3020_rmdup_rg_cb"
 bam2=$root_dir"DNA_bowtie2_rmdup/DNA3022_rmdup_rg_cb"
@@ -52,4 +63,5 @@ let secs=seconds_e-seconds_s
 echo "Elapsed time: $secs seconds!"
 
 exit 0
+```
 
