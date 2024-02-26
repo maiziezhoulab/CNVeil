@@ -14,7 +14,7 @@ https://bioconductor.org/packages/devel/bioc/vignettes/HMMcopy/inst/doc/HMMcopy.
 ```
 
 
-# For our data
+# For scDNA-seq data
 I used functions in SCOPE to generate the readdepth matrix `Y_raw` for HMMcopy and then ran HMMcopy (see details in SCOPE section for the readdepth matrix part):
 
 ```r
