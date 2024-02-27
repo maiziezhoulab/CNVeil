@@ -12,8 +12,7 @@ SeCNV is a Python-based method. I installed `conda` and set up the package envir
 ml Anaconda3/5.0.1
 source activate /home/liy109/.conda/envs/SeCNV
 
-ml GCC/10.2.0
-ml SAMtools/1.12
+ml GCC/10.2.0 SAMtools/1.12
 ```
 
 # For scDNA-seq data
