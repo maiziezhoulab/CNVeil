@@ -415,8 +415,7 @@ for (j in seq_along(unique(labels))) {
   
   # ------------- get changing rate
   f <- 6
-  diffl <- nbdiff(dat, f)  # Assuming nbdiff is already defined in R
-  
+  diffl <- nbdiff(dat, f)    
   #--------change rate cut-off
   if (crm == 'q') {
     t <- round(quantile(diffl, probs = 0.84), 2)
@@ -454,11 +453,11 @@ for (j in seq_along(unique(labels))) {
   
   # ------------------ estimate CNV
   idx_list <- which(labels == unique(labels)[j]) 
-  Y_one_cl_sm <- smooth_cnv(bnd_list, Y_one_cl)  # Assuming smooth_cnv is already defined in R
+  Y_one_cl_sm <- smooth_cnv(bnd_list, Y_one_cl)   
   for (m in 1:nrow(Y_one_cl)) {
     p_use <- final_p_list[idx_list[m]]
     cat("p_use:", p_use, "\n")
-    est_cnv <- get_by_cell_cnv(bnd_list, Y_one_cl_sm[m, ], p_use)  # Assuming get_by_cell_cnv is already defined in R
+    est_cnv <- get_by_cell_cnv(bnd_list, Y_one_cl_sm[m, ], p_use)   
     CNV <- rbind(CNV, est_cnv)
   }
 }
@@ -481,9 +480,9 @@ dfcnv <- data.frame(dfcnv, row.names = 'cell')
 output_path <- paste0(output_dir, "/CNV_", prefix, ".csv")
 write.csv(dfcnv, file = output_path, row.names = TRUE)
 
-dfcnv1 <- as.data.frame(t(CNV_matrix))
-colnames(dfcnv1) <- cells
-dfcnv1$bin <- bins
-dfcnv1 <- data.frame(dfcnv1, row.names = 'bin')
-write.csv(dfcnv1, file = paste0(output_path, ".T"), row.names = TRUE)
+# dfcnv1 <- as.data.frame(t(CNV_matrix))
+# colnames(dfcnv1) <- cells
+# dfcnv1$bin <- bins
+# dfcnv1 <- data.frame(dfcnv1, row.names = 'bin')
+# write.csv(dfcnv1, file = paste0(output_path, ".T"), row.names = TRUE)
 
