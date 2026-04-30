@@ -39,8 +39,8 @@ the pipeline produces:
 ├── scripts/
 │   ├── run_vartrix.sh
 │   └── combine_vartrix_matrices.R
-├── example/        # optional demo inputs
-└── output/         # generated results (not tracked)
+├── example/       
+└── output/         
 ```
 
 ---
