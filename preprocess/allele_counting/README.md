@@ -1,4 +1,4 @@
-# VarTrix Allele Matrix Pipeline
+# Single-Cell Allele Matrix Counting Pipeline
 
 This repository provides a reproducible pipeline to extract and process **allele-specific count matrices** from single-cell sequencing data using VarTrix.
 
