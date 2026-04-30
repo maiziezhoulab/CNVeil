@@ -7,12 +7,6 @@ The workflow consists of two main steps:
 1. Extract per-chromosome REF/ALT matrices from BAM + VCF
 2. Combine and preprocess matrices into genome-wide datasets
 
-This pipeline is designed for downstream analyses such as:
-
-* allele-specific copy number inference
-* clonal structure reconstruction
-* tumor heterogeneity analysis
-
 ---
 
 ## Overview
