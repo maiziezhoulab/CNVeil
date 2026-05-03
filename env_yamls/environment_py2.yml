@@ -1,5 +1,5 @@
 name: 
-  hap_test
+  CNVeil_py3
 channels:
   - conda-forge
   - bioconda
