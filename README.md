@@ -5,10 +5,12 @@
   - [Install CNVeil](#install-cnveil)
   - [Run CNVeil](#Run-CNVeil)
     - [Step 1: Extract read depth matrix](#Step-1-Extract-read-depth-matrix)
-    - [Step 2 Infer total copy number](#Step-2-Infer-total-copy-number)
-- Benchmark
+    - [Step 2: Infer total copy number](#Step-2-Infer-total-copy-number)
+    - [Step 3: Infer allele-specific copy number](#Step-3-Infer-allele-specific-copy-number)
+    - [Step 4: Infer haplotype-specific copy number](#Step-3-Infer-allele-specific-copy-number)
+- [Benchmark](#Benchmark)
   - [Prepare scDNA-seq data](#prepare-scDNA-seq-data)
-  - Run Tools
+  - [Run Tools](#run-tools)
 
 ## CNVeil
 ### Install CNVeil
