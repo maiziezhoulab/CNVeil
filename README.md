@@ -39,7 +39,7 @@ This step bins reads from the input BAM files, performs GC correction, and refor
 Script:
 
 ```bash
-CNVeil_extract_read_depth.py
+bin/CNVeil_extract_read_depth.py
 ```
 
 Required conda environment:
@@ -64,7 +64,7 @@ conda activate CNVeil_R451
 For real data:
 
 ```bash
-python CNVeil_extract_read_depth.py \
+python bin/CNVeil_extract_read_depth.py \
   --merged_bam_file /path/to/merged.bam \
   --split_bam_dir /path/to/split_bams \
   --work_dir /path/to/work_dir \
@@ -75,7 +75,7 @@ python CNVeil_extract_read_depth.py \
 For simulation data with a cell-node mapping file:
 
 ```bash
-python CNVeil_extract_read_depth.py \
+python bin/CNVeil_extract_read_depth.py \
   --merged_bam_file /path/to/merged.bam \
   --split_bam_dir /path/to/split_bams \
   --work_dir /path/to/work_dir \
@@ -108,7 +108,7 @@ This step takes the read-depth matrix generated from Step 1, and outputs a total
 Script:
 
 ```bash
-CNVeil_total_CN.py
+bin/CNVeil_total_CN.py
 ```
 
 Required conda environment:
@@ -150,7 +150,7 @@ Required input file:
 For real 10x data:
 
 ```bash
-python CNVeil_total_CN.py \
+python bin/CNVeil_total_CN.py \
   --work_dir /path/to/work_dir \
   --reftype hg38 \
   --seq_type <paired-end or single-end> \
@@ -162,7 +162,7 @@ python CNVeil_total_CN.py \
 For other single-cell sequencing data (non-10x):
 
 ```bash
-python CNVeil_total_CN.py \
+python bin/CNVeil_total_CN.py \
   --work_dir /path/to/work_dir \
   --reftype hg38 \
   --seq_type <paired-end or single-end> \
@@ -173,7 +173,7 @@ python CNVeil_total_CN.py \
 For simulation data with a cell-node mapping file:
 
 ```bash
-python CNVeil_total_CN.py \
+python bin/CNVeil_total_CN.py \
   --work_dir /path/to/work_dir \
   --reftype hg38 \
   --seq_type <paired-end or single-end> \
@@ -217,7 +217,7 @@ This step uses the total copy-number results from Step 2 together with SNP allel
 Script:
 
 ```bash
-CNVeil_allele_CN.py
+bin/CNVeil_allele_CN.py
 ```
 
 Required conda environment:
@@ -267,7 +267,7 @@ These files are used to generate per-cell allele-count files for allele-specific
 Basic usage:
 
 ```bash
-python CNVeil_allele_CN.py \
+python bin/CNVeil_allele_CN.py \
   --work_dir /path/to/work_dir \
   --var_dir /path/to/var_rds_dir \
   --ref_type hg38 \
@@ -278,7 +278,7 @@ python CNVeil_allele_CN.py \
 With a cell-name converter:
 
 ```bash
-python CNVeil_allele_CN.py \
+python bin/CNVeil_allele_CN.py \
   --work_dir /path/to/work_dir \
   --var_dir /path/to/var_rds_dir \
   --ref_type hg38 \
@@ -290,7 +290,7 @@ python CNVeil_allele_CN.py \
 With an optional SNP genotype file:
 
 ```bash
-python CNVeil_allele_CN.py \
+python bin/CNVeil_allele_CN.py \
   --work_dir /path/to/work_dir \
   --var_dir /path/to/var_rds_dir \
   --ref_type hg38 \
