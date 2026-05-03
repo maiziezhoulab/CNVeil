@@ -317,7 +317,7 @@ Important outputs include:
 Allele-specific copy number inferred at the cell/segment level.
 
 
-#### Step 4 Infer Haplotype-specific CN
+#### Step 4 Infer Haplotype-specific Copy Number
 
 <place holder>
 
