@@ -5,6 +5,7 @@
   - [Install CNVeil](#install-cnveil)
   - [Run CNVeil](#Run-CNVeil)
     - [Step 1: Extract read depth matrix](#Step-1-Extract-read-depth-matrix)
+    - [Step 2 Infer total copy number](#Step-2-Infer-total-copy-number)
 - Benchmark
   - [Prepare scDNA-seq data](#prepare-scDNA-seq-data)
   - Run Tools
@@ -98,7 +99,7 @@ Main output:
 This is the final read-depth matrix used by downstream CNVeil steps.
 
 
-#### Step 2: Infer total copy number
+#### Step 2 Infer Total Copy Number
 
 This step takes the read-depth matrix generated from Step 1, and outputs a total copy-number matrix for downstream CNVeil analysis.
 
