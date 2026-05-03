@@ -1,5 +1,5 @@
 name: 
-  CNVeil_py3
+  CNVeil_py2
 channels:
   - conda-forge
   - bioconda
