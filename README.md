@@ -319,7 +319,7 @@ Allele-specific copy number inferred at the cell/segment level.
 
 #### Step 4 Infer Haplotype-specific Copy Number
 
-<place holder>
+\<place holder\>
 
 ## Benchmark
 ### Prepare scDNA-seq data
