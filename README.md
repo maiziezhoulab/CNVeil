@@ -248,7 +248,7 @@ ref_all.rds
 alt_all.rds
 ```
 
-These files are used to generate per-cell allele-count files for allele-specific CN inference. To get allele-count information, check [here](preprocess/allele_count/README.md).
+These files are used to generate per-cell allele-count files for allele-specific CN inference. To get allele-count information, check [here](preprocess/allele_counting/README.md).
 
 #### Arguments
 
