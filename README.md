@@ -7,7 +7,7 @@
     - [Step 1: Extract read depth matrix](#Step-1-Extract-read-depth-matrix)
     - [Step 2: Infer total copy number](#Step-2-Infer-total-copy-number)
     - [Step 3: Infer allele-specific copy number](#Step-3-Infer-allele-specific-copy-number)
-    - [Step 4: Infer haplotype-specific copy number](#Step-3-Infer-allele-specific-copy-number)
+    - [Step 4: Infer haplotype-specific copy number](#Step-3-Infer-haplotype-specific-copy-number)
 - [Benchmark](#Benchmark)
   - [Prepare scDNA-seq data](#prepare-scDNA-seq-data)
   - [Run Tools](#run-tools)
@@ -319,6 +319,7 @@ Allele-specific copy number inferred at the cell/segment level.
 
 #### Step 4 Infer Haplotype-specific CN
 
+<place holder>
 
 ## Benchmark
 ### Prepare scDNA-seq data
