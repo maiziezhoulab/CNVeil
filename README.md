@@ -4,7 +4,7 @@
 - [CNVeil](#CNVeil)
   - [Install CNVeil](#install-cnveil)
   - [Run CNVeil](#Run-CNVeil)
-    - [Step 1: Extract read depth matrix](#Step-1:-Extract-read-depth-matrix)
+    - [Step 1: Extract read depth matrix](#Step-1-Extract-read-depth-matrix)
 - Benchmark
   - [Prepare scDNA-seq data](#prepare-scDNA-seq-data)
   - Run Tools
@@ -29,7 +29,7 @@ conda env create -f CNVeil/env_yamls/environment_R451.yml
 You will have 3 virtual environments installed (CNVeil_py3, CNVeil_py2 and CNVeil_R451). And they will be used in diferent steps. You will need to load the corresponding virtual environment before you run each step in CNVeil pipeline.
 
 ### Run CNVeil
-#### Step 1: Extract read depth matrix
+#### Step 1 Extract read depth matrix
 
 This step bins reads from the input BAM files, performs GC correction, and reformats the corrected bin-level read depth into a matrix for downstream CNVeil analysis.
 
