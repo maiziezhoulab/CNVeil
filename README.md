@@ -7,7 +7,7 @@
     - [Step 1: Extract read depth matrix](#Step-1-Extract-read-depth-matrix)
     - [Step 2: Infer total copy number](#Step-2-Infer-total-copy-number)
     - [Step 3: Infer allele-specific copy number](#Step-3-Infer-allele-specific-copy-number)
-    - [Step 4: Infer haplotype-specific copy number](#Step-3-Infer-haplotype-specific-copy-number)
+    - [Step 4: Infer haplotype-specific copy number](#Step-4-Infer-haplotype-specific-copy-number)
 - [Benchmark](#Benchmark)
   - [Prepare scDNA-seq data](#prepare-scDNA-seq-data)
   - [Run Tools](#run-tools)
