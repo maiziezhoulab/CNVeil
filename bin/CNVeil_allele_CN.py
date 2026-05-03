@@ -28,7 +28,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--vcf_dir",
+        "--var_dir",
         required=True,
         help="Directory containing input VCF/RDS-derived files."
     )
@@ -48,7 +48,6 @@ def parse_args():
 
     parser.add_argument(
         "--snp_source",
-        default="tumor-normal",
         choices=["tumor", "tumor-normal",],
         help="SNP source type."
     )
@@ -73,7 +72,7 @@ def parse_args():
 args = parse_args()
 
 work_dir = os.path.abspath(args.work_dir)
-vcf_dir = os.path.abspath(args.vcf_dir)
+vcf_dir = os.path.abspath(args.var_dir)
 ref_type = args.ref_type[2:]
 convert = args.convert
 snp_source = args.snp_source

@@ -3,8 +3,8 @@ from argparse import ArgumentParser
 parser = ArgumentParser(description="",
     usage='use "python3 %(prog)s --help" for more information',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--merged_bam_file','-mgbam')
-parser.add_argument('--split_bam_dir','-spbam')
+# parser.add_argument('--merged_bam_file','-mgbam')
+# parser.add_argument('--split_bam_dir','-spbam')
 parser.add_argument('--reftype','-rt', choices=['hg19','hg38'])
 parser.add_argument('--seq_type','-st', choices=['paired-end','single-end'])
 parser.add_argument('--data_type','-dtype', choices=['10x','other'])
@@ -22,8 +22,8 @@ parser.add_argument('--ploidy_mode','-pm', choices= ['gl','cl'],
 
 args = parser.parse_args()
 
-merged_bam_file = args.merged_bam_file
-split_bam_dir = args.split_bam_dir
+# merged_bam_file = args.merged_bam_file
+# split_bam_dir = args.split_bam_dir
 reftype = args.reftype
 seq_type = args.seq_type
 output_dir = args.work_dir + "/Total_CN/"
@@ -57,18 +57,6 @@ if not os.path.exists(output_dir):
 
 
 
-def bin_reads_GC(merged_bam, split_bam_folder, refv, out_dir,cell_node_file, num_threads):
-    ''' refv : hg19|hg38 '''
-    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-    cmd = f"Rscript {SCRIPT_DIR}/Preprocess/preprocess.R {merged_bam} {split_bam_folder} {refv} {out_dir}/bin_reads/  {num_threads}"
-    Popen(cmd, shell= True).wait()
-
-    if cell_node_file is None:
-        cmd = f"Rscript {SCRIPT_DIR}/Preprocess/reformat_bin_reads.R  -i {out_dir}/bin_reads/binned-GC  -o {out_dir}/RDmatrix.csv"
-        Popen(cmd, shell= True).wait()
-    else:
-        cmd = f"Rscript {SCRIPT_DIR}/Preprocess/reformat_bin_reads.R  -i {out_dir}/bin_reads/binned-GC  -o {out_dir}/RDmatrix.csv -t {cell_node_file}"
-        Popen(cmd, shell= True).wait()
 
 
 
@@ -834,7 +822,7 @@ if __name__ == '__main__':
 
     # ---------------- bin reads and GC correction
 
-    bin_reads_GC(merged_bam_file, split_bam_dir, reftype, output_dir, cell_node, num_threads)
+    # bin_reads_GC(merged_bam_file, split_bam_dir, reftype, output_dir, cell_node, num_threads)
 
 
     #----------------------------------  Load Data and preprocess

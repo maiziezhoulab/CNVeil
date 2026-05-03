@@ -327,7 +327,8 @@ def phase_one_chrom(df, count_file, chrom, cell_cluster,  snp_source, convert= N
                 use_pos = set(df1[(df1['baf']>0.1) & (df1['baf']<0.9) & (df1['cov']>5)]['pos'])
                 df_baf_seg = df_baf_seg[df_baf_seg['pos'].isin(use_pos)].reset_index()
         # print("============",snp_source)
-        if snp_source in ['tumor-normal','matched-normal']:
+        # if snp_source in ['tumor-normal','matched-normal']: # classic version, snp source matters
+        if True: # Test version, removed snp source dependent features   
             # print(1111)
             logger.info("snp_source:" + snp_source)
             logger.info("Perform filter...")
@@ -784,3 +785,84 @@ def allele_CN(total_cn_dir, outdir, baf_dir, sample, convert, snp_source, snp_fi
 #     # snp file needs to be merged tumor cell call (not matched normal call)
 #     snp_file = None
 #     snp_source = 'tumor-normal'
+
+
+if __name__ == "__main__":
+
+    #!/usr/bin/env python3
+
+    import argparse
+    import os
+
+
+    def parse_args():
+        parser = argparse.ArgumentParser(
+            description="Run allele-specific copy number inference."
+        )
+
+        parser.add_argument(
+            "--total_cn_dir",
+            required=True,
+            help="Directory containing total copy-number input files."
+        )
+
+        parser.add_argument(
+            "--outdir",
+            required=True,
+            help="Output directory."
+        )
+
+        parser.add_argument(
+            "--baf_dir",
+            required=True,
+            help="Directory containing per-chromosome BAF files."
+        )
+
+        parser.add_argument(
+            "--sample",
+            required=True,
+            help="Sample name."
+        )
+
+        parser.add_argument(
+            "--convert",
+            default=None,
+            help="Optional cell-name / barcode converter file."
+        )
+
+        parser.add_argument(
+            "--snp_source",
+            default="tumor-normal",
+            choices=["tumor", "tumor-normal", "matched-normal"],
+            help="SNP source type."
+        )
+
+        parser.add_argument(
+            "--snp_file",
+            default=None,
+            help="Optional SNP genotype file."
+        )
+
+        parser.add_argument(
+            "--n_thread",
+            "-t",
+            type=int,
+            default=10,
+            help="Number of threads."
+        )
+
+        return parser.parse_args()
+
+
+    args = parse_args()
+
+    allele_CN(
+        total_cn_dir=args.total_cn_dir,
+        outdir=args.outdir,
+        baf_dir=args.baf_dir,
+        sample=args.sample,
+        convert=args.convert,
+        snp_source=args.snp_source,
+        snp_file=args.snp_file,
+        n_thread=args.n_thread,
+    )

@@ -1,123 +1,322 @@
 # CNVeil
 
 ## Table of content
-- [CNVeil-Python](#CNVeil-Python)
-  - [Install python version CNVeil](#install-python-version-cnveil)
-  - [Run CNVeil-Python](#Run-CNVeil-Python)
-- [CNVeil-R](#CNVeil-R)
-  - [Install R version CNVeil](#install-R-version-cnveil)
-  - [Run CNVeil-R](#Run-CNVeil-R)
+- [CNVeil](#CNVeil)
+  - [Install CNVeil](#install-cnveil)
+  - [Run CNVeil](#Run-CNVeil)
+    - [Step 1: Extract read depth matrix](#Step-1:-Extract-read-depth-matrix)
 - Benchmark
   - [Prepare scDNA-seq data](#prepare-scDNA-seq-data)
   - Run Tools
 
-## CNVeil-Python
-### Install python version CNVeil
+## CNVeil
+### Install CNVeil
 
-You can install python version CNVeil through github
+You can install CNVeil through github
 ```
 git clone git@github.com:maiziezhoulab/CNVeil.git
 ```
-To set up the environment, you should have [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) installed on your machine. Then simple run
+To set up the environment, you should have [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) installed on your machine. Then simply run
 ```
-conda env create -f CNVeil/Python/environment.yml
-```
-You will have a virtual environment called CNVeil installed. You must load this virtual environment before you run the CNVeil-python pipeline.
-```
-conda activate CNVeil
-```
-
-### Run CNVeil-Python
-
-The main code for CNVeil-python is 'CNVeil/python/CNVeil.py`. The input arguments for this code are listed below:
-
-```
-  --bam_dirs BAM_DIRS [BAM_DIRS ...], -bam BAM_DIRS [BAM_DIRS ...]
-                        Input directory that contains BAM files; if you want to provide multiple directories, separate them by blank
-                        space (default: None)
-  --pre_bam_list PRE_BAM_LIST [PRE_BAM_LIST ...], -baml PRE_BAM_LIST [PRE_BAM_LIST ...]
-                        either bam_dirs or pre_bam_list need to be provided; provide multiple bam files, separate them by blank space
-                        (default: None)
-  --reference REFERENCE, -ref REFERENCE reference genome path
-  --reftype {hg19,hg38}, -rt {hg19,hg38}
-  --seq_type {paired-end,single-end}, -st {paired-end,single-end}
-  --output_dir OUTPUT_DIR, -o OUTPUT_DIR
-  --prefix PREFIX, -px PREFIX the output file's prefix, default = Sample
-  --n_thread N_THREAD, -t N_THREAD  number of threads the pipeline will be executed under
-  --cell_node CELL_NODE, -cn CELL_NODE
-                        cell node file (every line should be cell name , tab and its corresponding node name); optional, if not given, will not transform cell to node in the end (default: None)
-  --change_rate_mode {q,h}, -crm {q,h}
-                        q -> use 0.84 quantile for change rate cut-off; h -> use 0.1 as change rate cut-off (default: q)
-  --ploidy_mode {gl,cl}, -pm {gl,cl}
-                        estimate ploidy globally(gl) or by cluster(cl) (default: cl)
-
+# create conda env CNVeil_py3
+conda env create -f CNVeil/env_yamls/environment_py3.yml 
+# create conda env CNVeil_py2
+conda env create -f CNVeil/env_yamls/environment_py2.yml
+# create conda env CNVeil_R451
+conda env create -f CNVeil/env_yamls/environment_R451.yml
 ```
 
-An example command to run the pipeline is provided below:
+You will have 3 virtual environments installed (CNVeil_py3, CNVeil_py2 and CNVeil_R451). And they will be used in diferent steps. You will need to load the corresponding virtual environment before you run each step in CNVeil pipeline.
 
-```
-python3 CNVeil/Python/CNVeil.py \
--bam <bam_dir> \
--ref <refernce_file> \
--rt <hg19 or hg38> \
--st <paired-end or single-end> \
--o CNVeil_output \
--t 10 \
--px <sample_name> \
--crm q -pm cl
-```
-After the pipeline is finished, you will see the final CNV matrix in CNVeil_output/CNV_<sample_name>.csv.
+### Run CNVeil
+#### Step 1: Extract read depth matrix
 
-## CNVeil-R
-### Install R version CNVeil
+This step bins reads from the input BAM files, performs GC correction, and reformats the corrected bin-level read depth into a matrix for downstream CNVeil analysis.
 
-You can install R version CNVeil by loading all the necessary packages described below first, make sure the R version is above 4.2.1:
-```
-optparse/1.7.3
-data.table/1.14.2
-ggplot2/3.4.4
-cluster/2.1.3
-stats/4.2.1
-dplyr/1.0.9
-matrixStats/1.2.0
-kernlab/0.9.31
-pracma/2.3.8
-gtools/3.9.5
-DescTools/0.99.45
-GenomicRanges1.50.2
-Rsamtools/2.14.0
-BSgenome.Hsapiens.UCSC.hg38/1.4.5
-SCOPE/1.10.0
-WGSmapp/1.10.0
-```
-### Run CNVeil-R
+Script:
 
-To establish read depth matrix from bam file, please run the preprocess.r first. The input arguments for this code are listed below:
-
-```
-1. work_path: Path to the working directory.
-2. ref: Type of the reference.
-3. bam_path: Directory containing BAM files.
-4. pattern: Pattern to match the BAM files (if needed).
-5. bin_size: Size of the bins for the read depth matrix.
-```
-Run the script as follows:
-```
-Rscript preprocess.r [work_path] [ref] [bam_path] [pattern] [bin_size] 
-```
-The major result for this step is named as "genome_cov.bed". 
-
-To correct the bias by normal cell, please use normal_cell_correction.r for to obtain RDmatrix.rds. 
-Run the script as follows:
-```
-Rscript normal_cell_correction.r /path/to/work/directory /path/to/normal/cell/file(optional) /path/to/save/output/
+```bash
+CNVeil_extract_read_depth.py
 ```
 
-Finally, we could call CNVs from the standardized matrix. Please run the call_cn.r. The input arguments for this code are listed below:
+Required conda environment:
 
+```bash
+conda activate CNVeil_R451
 ```
-Rscript call_cn.r --input_dir /path/to/input --output_dir /path/to/output --prefix Sample --cell_node /path/to/cell_node.txt --change_rate_mode q --ploidy_mode gl
+
+### Arguments
+
+| Argument | Short | Required | Description |
+|---|---|---|---|
+| `--merged_bam_file` | `-mgbam` | Yes | Path to the merged BAM file containing reads from all cells. This is used for binning and GC correction. |
+| `--split_bam_dir` | `-spbam` | Yes | Directory containing split BAM files for individual cells. |
+| `--work_dir` | `-w` | Yes | Working directory for CNVeil output. The script will create a `Total_CN/` subdirectory inside the working folder. |
+| `--reftype` | `-rt` | Yes | Reference genome version. Must be either `hg19` or `hg38`. |
+| `--num_threads` | `-t` | No | Number of threads to use. Default: `20`. |
+| `--cell_node` | `-cn` | No | Optional cell-node mapping file. This is mainly designed for simulation data generated from SimscTree. If provided, cell IDs will be transformed to node IDs in the final matrix. For real data, this is not needed. |
+
+### Example usage
+
+For real data:
+
+```bash
+python CNVeil_extract_read_depth.py \
+  --merged_bam_file /path/to/merged.bam \
+  --split_bam_dir /path/to/split_bams \
+  --work_dir /path/to/work_dir \
+  --reftype hg38 \
+  --num_threads 20
 ```
+
+For simulation data with a cell-node mapping file:
+
+```bash
+python CNVeil_extract_read_depth.py \
+  --merged_bam_file /path/to/merged.bam \
+  --split_bam_dir /path/to/split_bams \
+  --work_dir /path/to/work_dir \
+  --reftype hg38 \
+  --num_threads 20 \
+  --cell_node /path/to/cell_node.tsv
+```
+
+### Output files
+
+The script creates the following output directory:
+
+```text
+<work_dir>/Total_CN/
+```
+
+Main output:
+
+```text
+<work_dir>/Total_CN/RDmatrix.csv
+```
+
+This is the final read-depth matrix used by downstream CNVeil steps.
+
+
+#### Step 2: Infer total copy number
+
+This step takes the read-depth matrix generated from Step 1, and outputs a total copy-number matrix for downstream CNVeil analysis.
+
+Script:
+
+```bash
+CNVeil_total_CN.py
+```
+
+Required conda environment:
+
+```bash
+conda activate CNVeil_py3
+```
+
+
+This script expects the Step 1 output directory structure:
+
+```text
+<work_dir>/Total_CN/
+```
+
+Required input file:
+
+```text
+<work_dir>/Total_CN/RDmatrix.csv
+```
+
+
+
+##### Arguments
+
+| Argument | Short | Required | Description |
+|---|---|---|---|
+| `--work_dir` | `-w` | Yes | Working directory for CNVeil. The script reads input from `<work_dir>/Total_CN/RDmatrix.csv` and writes outputs to `<work_dir>/Total_CN/`. |
+| `--reftype` | `-rt` | Yes | Reference genome version. Must be either `hg19` or `hg38`. |
+| `--seq_type` | `-st` | Yes | Sequencing type. Must be either `paired-end` or `single-end`. This argument is currently parsed but not directly used in the script. |
+| `--data_type` | `-dtype` | Yes | Data type. Must be either `10x` or `other`. This affects QC and low-coverage bin filtering behavior. |
+| `--sample` | `-sp` | No | Sample name used in output file names. Default: `sample`. |
+| `--num_threads` | `-t` | No | Number of threads. Default: `20`. This argument is currently parsed but not directly used in the main CN inference steps. |
+| `--cell_node` | `-cn` | No | Optional cell-node mapping file. Mainly designed for simulation data. If provided, cell names are transformed to node labels in the final CNV output. |
+
+
+##### Example usage
+
+For real 10x data:
+
+```bash
+python CNVeil_total_CN.py \
+  --work_dir /path/to/work_dir \
+  --reftype hg38 \
+  --seq_type <paired-end or single-end> \
+  --data_type 10x \
+  --sample SAMPLE_NAME \
+  --num_threads 20
+```
+
+For other single-cell sequencing data (non-10x):
+
+```bash
+python CNVeil_total_CN.py \
+  --work_dir /path/to/work_dir \
+  --reftype hg38 \
+  --seq_type <paired-end or single-end> \
+  --data_type other \
+  --sample SAMPLE_NAME
+```
+
+For simulation data with a cell-node mapping file:
+
+```bash
+python CNVeil_total_CN.py \
+  --work_dir /path/to/work_dir \
+  --reftype hg38 \
+  --seq_type <paired-end or single-end> \
+  --data_type 10x \
+  --sample SAMPLE_NAME \
+  --cell_node /path/to/cell_node.tsv
+```
+
+
+
+##### Main output files
+
+All outputs are written under:
+
+```text
+<work_dir>/Total_CN/
+```
+
+Main total copy-number matrix:
+
+```text
+<work_dir>/Total_CN/CNV_<sample>.csv
+```
+
+This file has cells as rows and genomic bins as columns.
+
+Transposed copy-number matrix:
+
+```text
+<work_dir>/Total_CN/CNV_<sample>.csv.T
+```
+
+This file has genomic bins as rows and cells as columns.
+
+
+#### Step 3: Infer allele-specific copy number
+
+This step uses the total copy-number results from Step 2 together with SNP allele-count information to infer allele-specific copy number (ASCN).
+
+
+Script:
+
+```bash
+CNVeil_allele_CN.py
+```
+
+Required conda environment:
+
+```bash
+conda activate CNVeil_py3
+```
+
+##### Required input from previous steps
+
+This step expects the CNVeil working directory to already contain the total CN result from Step 2:
+
+```text
+<work_dir>/Total_CN/CNV_<sample>.csv
+```
+
+It also requires a directory containing SNP/RDS-derived input files:
+
+```text
+<var_dir>/
+```
+
+The SNP loader expects this directory to contain:
+
+```text
+var_all.rds
+ref_all.rds
+alt_all.rds
+```
+
+These files are used to generate per-cell allele-count files for allele-specific CN inference. To get allele-count information, check preprocess/allele_count/README.md.
+
+#### Arguments
+
+| Argument | Short | Required | Description |
+|---|---|---|---|
+| `--work_dir` | | Yes | Working directory for the CNVeil pipeline. The script reads total CN results from `<work_dir>/Total_CN/` and writes allele-specific CN results to `<work_dir>/Allele_CN/`. |
+| `--var_dir` | | Yes | Directory containing SNP/RDS-derived files, including `var_all.rds`, `ref_all.rds`, and `alt_all.rds`. |
+| `--ref_type` | | Yes | Reference genome type. Must be `hg19` or `hg38`. |
+| `--snp_source` | | Yes | SNP source type. Must be `tumor` or `tumor-normal`.|
+| `--convert` | | No | Optional cell name/barcode converter file. Use this if cell names in allele-count files and total CN files need to be matched. |
+| `--snp_file` | | No | Optional SNP genotype file. Usually only needed when external genotype information is available. |
+| `--num_threads` | `-t` | No | Number of parallel threads. Default: `22`. |
+
+##### Example usage
+
+Basic usage:
+
+```bash
+python CNVeil_allele_CN.py \
+  --work_dir /path/to/work_dir \
+  --var_dir /path/to/var_rds_dir \
+  --ref_type hg38 \
+  --snp_source tumor-normal \
+  --num_threads 22
+```
+
+With a cell-name converter:
+
+```bash
+python CNVeil_allele_CN.py \
+  --work_dir /path/to/work_dir \
+  --var_dir /path/to/var_rds_dir \
+  --ref_type hg38 \
+  --convert /path/to/collected_barcodes_SAMPLE.txt \
+  --snp_source tumor-normal \
+  --num_threads 22
+```
+
+With an optional SNP genotype file:
+
+```bash
+python CNVeil_allele_CN.py \
+  --work_dir /path/to/work_dir \
+  --var_dir /path/to/var_rds_dir \
+  --ref_type hg38 \
+  --convert /path/to/collected_barcodes_SAMPLE.txt \
+  --snp_source tumor \
+  --snp_file /path/to/snp_genotype.tsv \
+  --num_threads 22
+```
+
+##### Main output files
+
+The script writes allele-specific CN results under:
+
+```text
+<work_dir>/Allele_CN/
+```
+
+Important outputs include:
+
+```text
+<work_dir>/Allele_CN/ascn_seg.csv
+```
+
+Allele-specific copy number inferred at the cell/segment level.
+
+
+#### Step 4 Infer Haplotype-specific CN
+
+
 ## Benchmark
 ### Prepare scDNA-seq data
 
@@ -184,8 +383,19 @@ done < $file
 Zipped the bed file, which is recommended for the Ginkgo web platform to analyze.
 ```
 cd ${bedpath_hg19}
-output_path=${srapath}/'bedpath_SraAccList'${patient}'_zipped'
-mkdir ${output_path}
-for file in *"_hg19_rmdup.bed"; do
-    gzip -c "$file" > "${output_path}/${file%.bed}.bed.gz"
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
