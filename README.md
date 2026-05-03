@@ -317,9 +317,74 @@ Important outputs include:
 Allele-specific copy number inferred at the cell/segment level.
 
 
-#### Step 4 Infer Haplotype-specific Copy Number
+## Step 4: Infer haplotype-specific copy number
 
-\<place holder\>
+This step uses the allele-specific copy-number results from Step 3 and phases allele-specific states along the genome to infer haplotype-specific copy number (HAP-CN).
+
+**Script:**
+
+```bash
+bin/CNVeil_hap_CN.py
+```
+
+**Required conda environment:**
+
+```bash
+conda activate CNVeil_py2
+```
+
+### Required input from previous steps
+
+This step expects the CNVeil working directory to already contain the allele-specific CN result from Step 3:
+
+```
+<work_dir>/Allele_CN/ascn_seg.csv
+```
+
+This file contains allele-specific copy number states per cell and segment, formatted as:
+
+```
+chr,start,end,cell1,cell2,...
+chr1,100000,200000,2|1,1|2,...
+```
+
+Each entry `A|B` represents the allele-specific copy numbers for a given segment and cell.
+
+### Arguments
+
+| Argument | Short | Required | Description |
+|---|---|---|---|
+| `--ascn_file` | | Yes | Input allele-specific CN segment file from Step 3. |
+| `--out_dir` | | Yes | Output directory for haplotype-specific CN results. |
+
+### Example usage
+
+**Basic usage:**
+
+```bash
+python2.7 bin/CNVeil_hap_CN.py \
+  --ascn_file /path/to/work_dir/Allele_CN/ascn_seg.csv \
+  --out_dir /path/to/work_dir/Haplotype_CN 
+```
+
+### Main output files
+
+The script writes haplotype-specific CN results under:
+
+```
+<work_dir>/Haplotype_CN/
+```
+
+Important outputs include:
+
+Haplotype-specific copy number inferred at the cell/segment level with consistent allele orientation across the genome.
+
+```
+<work_dir>/Haplotype_CN/phasing_output.pkl
+```
+
+Serialized phased copy-number object for downstream analysis.
+
 
 ## Benchmark
 ### Prepare scDNA-seq data
