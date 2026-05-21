@@ -250,6 +250,84 @@ alt_all.rds
 
 These files are used to generate per-cell allele-count files for allele-specific CN inference. To get allele-count information, check [here](preprocess/allele_counting/README.md).
 
+After getting var_all.rds, you need to process it using `bin/load_snp.R`. 
+
+Activate the R environment before running:
+
+```bash
+conda activate CNVeil_R451
+```
+
+Run:
+
+```bash
+Rscript load_snp.R <rds_dir> <work_dir> <sample> <num_threads>
+```
+
+Example:
+
+```bash
+Rscript load_snp.R \
+  /path/to/rds_dir \
+  /path/to/work_dir \
+  TN1 \
+  8
+```
+
+Required input files in `<rds_dir>`:
+
+```text
+var_all.rds
+ref_all.rds
+alt_all.rds
+```
+
+Required total CN file:
+
+```text
+<work_dir>/Total_CN/CNV_<sample>.csv
+```
+
+This step outputs files to:
+
+```text
+<work_dir>/Allele_CN/allele_count_by_cell/
+```
+
+Main outputs:
+
+```text
+<sample>_baf.tsv
+<sample>_baf_chr1.tsv
+...
+<sample>_baf_chr22.tsv
+<sample>_pos_baf_chr1.tsv.gz
+...
+<sample>_pos_baf_chr22.tsv.gz
+```
+
+The `*_baf_chr*.tsv` files contain cell-level allele counts:
+
+```text
+chrom    pos    cell    ref    alt
+```
+
+The `*_pos_baf_chr*.tsv.gz` files contain position-level BAF features:
+
+```text
+chrom    pos    ref_sum    alt_sum    n_cells    n_obs    depth    baf    mbaf
+```
+
+Normal cells are inferred from average total CN:
+
+```text
+|avg_CN - 2| <= 0.1
+```
+
+Normal cells are excluded when computing position-level BAF files.
+
+Afterwards, you may run `bin/CNVeil_Allele_CN.py` to generate allele-specifc CN.
+
 #### Arguments
 
 | Argument | Short | Required | Description |
@@ -257,8 +335,8 @@ These files are used to generate per-cell allele-count files for allele-specific
 | `--work_dir` | | Yes | Working directory for the CNVeil pipeline. The script reads total CN results from `<work_dir>/Total_CN/` and writes allele-specific CN results to `<work_dir>/Allele_CN/`. |
 | `--var_dir` | | Yes | Directory containing SNP/RDS-derived files, including `var_all.rds`, `ref_all.rds`, and `alt_all.rds`. |
 | `--ref_type` | | Yes | Reference genome type. Must be `hg19` or `hg38`. |
-| `--snp_source` | | Yes | SNP source type. Must be `tumor` or `tumor-normal`.|
 | `--convert` | | No | Optional cell name/barcode converter file. Use this if cell names in allele-count files and total CN files need to be matched. |
+| `--dtype` | | No | Optional sequencing data type. Must be '10x' or 'other'. By default it is set to 'other'. |
 | `--snp_file` | | No | Optional SNP genotype file. Usually only needed when external genotype information is available. |
 | `--num_threads` | `-t` | No | Number of parallel threads. Default: `22`. |
 
@@ -271,7 +349,6 @@ python bin/CNVeil_allele_CN.py \
   --work_dir /path/to/work_dir \
   --var_dir /path/to/var_rds_dir \
   --ref_type hg38 \
-  --snp_source tumor-normal \
   --num_threads 22
 ```
 
@@ -283,11 +360,10 @@ python bin/CNVeil_allele_CN.py \
   --var_dir /path/to/var_rds_dir \
   --ref_type hg38 \
   --convert /path/to/collected_barcodes_SAMPLE.txt \
-  --snp_source tumor-normal \
   --num_threads 22
 ```
 
-With an optional SNP genotype file:
+When running for 10x data:
 
 ```bash
 python bin/CNVeil_allele_CN.py \
@@ -295,8 +371,7 @@ python bin/CNVeil_allele_CN.py \
   --var_dir /path/to/var_rds_dir \
   --ref_type hg38 \
   --convert /path/to/collected_barcodes_SAMPLE.txt \
-  --snp_source tumor \
-  --snp_file /path/to/snp_genotype.tsv \
+  --dtype 10x \
   --num_threads 22
 ```
 
