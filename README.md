@@ -211,46 +211,11 @@ This file has genomic bins as rows and cells as columns.
 
 #### Step 3: Infer allele-specific copy number
 
-This step uses the total copy-number results from Step 2 together with SNP allele-count information to infer allele-specific copy number (ASCN).
+This step uses the total copy-number results from Step 2 together with SNP allele-count information to infer allele-specific copy number (ASCN). You need to first extract per cell allele count before running the main script.
 
+To get allele-count information, follow the instruction [here](preprocess/allele_counting/README.md).
 
-Script:
-
-```bash
-bin/CNVeil_allele_CN.py
-```
-
-Required conda environment:
-
-```bash
-conda activate CNVeil_py3
-```
-
-##### Required input from previous steps
-
-This step expects the CNVeil working directory to already contain the total CN result from Step 2:
-
-```text
-<work_dir>/Total_CN/CNV_<sample>.csv
-```
-
-It also requires a directory containing SNP/RDS-derived input files:
-
-```text
-<var_dir>/
-```
-
-The SNP loader expects this directory to contain:
-
-```text
-var_all.rds
-ref_all.rds
-alt_all.rds
-```
-
-These files are used to generate per-cell allele-count files for allele-specific CN inference. To get allele-count information, check [here](preprocess/allele_counting/README.md).
-
-After getting var_all.rds, you need to process it using `bin/load_snp.R`. 
+After that, you will get var_all.rds in the output folder and you need to process it using `bin/load_snp.R`. 
 
 Activate the R environment before running:
 
@@ -327,6 +292,43 @@ Normal cells are inferred from average total CN:
 Normal cells are excluded when computing position-level BAF files.
 
 Afterwards, you may run `bin/CNVeil_Allele_CN.py` to generate allele-specifc CN.
+
+
+Script:
+
+```bash
+bin/CNVeil_allele_CN.py
+```
+
+Required conda environment:
+
+```bash
+conda activate CNVeil_py3
+```
+
+##### Required input from previous steps
+
+
+This step expects the CNVeil working directory to already contain the total CN result from Step 2:
+
+```text
+<work_dir>/Total_CN/CNV_<sample>.csv
+```
+
+It also requires a directory containing SNP/RDS-derived input files:
+
+```text
+<var_dir>/
+```
+
+The SNP loader expects this directory to contain:
+
+```text
+var_all.rds
+ref_all.rds
+alt_all.rds
+```
+
 
 #### Arguments
 
