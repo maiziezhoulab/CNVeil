@@ -42,13 +42,6 @@ def parse_args():
         help="Optional cell name/barcode converter file."
     )
 
-    parser.add_argument(
-            "--dtype",
-            default='other',
-            choices= ['10x', 'other'],
-            help="10x or other type of sequencing."
-        )
-    
     # parser.add_argument(
     #     "--snp_source",
     #     choices=["tumor", "tumor-normal"],
@@ -73,14 +66,14 @@ def parse_args():
     # -----------------------------
     # New arguments for updated EM.py
     # -----------------------------
-    # parser.add_argument(
-    #     "--threshold_file",
-    #     default=None,
-    #     help=(
-    #         "Threshold model TSV, e.g. best_mBAF_threshold_by_CN.tsv. "
-    #         "Required/recommended when --snp_source tumor."
-    #     )
-    # )
+    parser.add_argument(
+        "--threshold_file",
+        default=None,
+        help=(
+            "Threshold model TSV, e.g. best_mBAF_threshold_by_CN.tsv. "
+            "Required/recommended when --snp_source tumor."
+        )
+    )
 
     parser.add_argument(
         "--threshold_feature",
@@ -115,19 +108,14 @@ convert = args.convert
 # snp_file = args.snp_file
 num_threads = args.num_threads
 
-# threshold_file = args.threshold_file
+threshold_file = args.threshold_file
 threshold_feature = args.threshold_feature
 min_depth = args.min_depth
 min_snps = args.min_snps
-dtype = args.dtype
+
 total_cn_dir = work_dir + "/Total_CN/"
 allele_cn_dir = work_dir + "/Allele_CN/"
 baf_dir = allele_cn_dir + "/allele_count_by_cell/"
-
-import os
-code_dir = os.path.dirname(os.path.realpath(__file__))+'/'
-threshold_file = code_dir + "LOH_threshold_model.tsv"
-
 
 sample = (
     glob.glob(f"{total_cn_dir}/CNV_*.csv")[0]
@@ -155,7 +143,6 @@ allele_CN(
     baf_dir,
     sample,
     convert,
-    dtype,
     # snp_source,
     # snp_file,
     num_threads,

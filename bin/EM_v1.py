@@ -15,7 +15,7 @@ from scipy.cluster.hierarchy import leaves_list
 from sklearn.cluster import AgglomerativeClustering
 import logging
 
-
+# Set up logger
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
     level=logging.INFO,
@@ -71,6 +71,8 @@ def is_single_normal_mu_in_range(x, lo=0.4, hi=0.6):
     g1 = GaussianMixture(1, random_state=0).fit(X)
     g2 = GaussianMixture(2, random_state=0).fit(X)
 
+    # print(float(g1.means_[0, 0]), float(np.sqrt(g1.covariances_[0, 0, 0])))
+
     return (g1.bic(X) <= g2.bic(X)) and (lo <= float(g1.means_[0, 0]) <= hi)
 
 
@@ -122,9 +124,6 @@ def E_step(df, snp_flip):
 
 
 def EM(df, max_iter=50):
-    if len(df) == 0:
-        raise ValueError("EM input df is empty after SNP filtering.")
-
     initial_theta = df.groupby("cell")[["ref", "alt"]].sum().reset_index()
     initial_theta["theta_A"] = initial_theta["alt"] / (
         initial_theta["ref"] + initial_theta["alt"]
@@ -143,6 +142,7 @@ def EM(df, max_iter=50):
         cur_F = cur_snp_flip["F"].sum()
 
         if i:
+            # print(last_F, cur_F, abs(cur_F - last_F))
             if abs(cur_F - last_F) < 0.001:
                 break
 
@@ -204,7 +204,7 @@ def flexible_load(tsv):
 
 def load_threshold_model(threshold_file, feature="median_mBAF"):
     """
-    Threshold file example:
+    threshold_file example:
         best_mBAF_threshold_by_CN.tsv
 
     Expected columns:
@@ -216,7 +216,7 @@ def load_threshold_model(threshold_file, feature="median_mBAF"):
         predict LOH if feature <= threshold
     """
     if threshold_file is None:
-        raise ValueError("--threshold_file is required for LOH decision.")
+        return None
 
     th = pd.read_csv(threshold_file, sep="\t")
 
@@ -239,10 +239,19 @@ def load_pos_baf_file(baf_dir, sample, chrom):
     """
     Load precomputed position-level BAF.
 
-    Expected:
+    Expected files:
         {baf_dir}/{sample}_pos_baf_chr1.tsv.gz
         or
         {baf_dir}/{sample}_pos_baf_chr1.tsv
+
+    Expected columns:
+        chrom
+        pos
+        depth
+        baf
+        mbaf
+
+    If mbaf is missing, it is computed as min(baf, 1 - baf).
     """
     f1 = os.path.join(baf_dir, f"{sample}_pos_baf_{chrom}.tsv.gz")
     f2 = os.path.join(baf_dir, f"{sample}_pos_baf_{chrom}.tsv")
@@ -272,29 +281,6 @@ def load_pos_baf_file(baf_dir, sample, chrom):
     df_pos["pos"] = df_pos["pos"].astype(int)
 
     return df_pos
-
-
-def calc_tumor_only_avg_cn(df_chr, start_idx, end_idx, normal_cells):
-    """
-    Calculate average total CN for a segment using tumor cells only.
-
-    Normal cells are inferred globally from avg total CN close to 2.
-    """
-    cell_cols = list(df_chr.columns[3:])
-    normal_set = set(normal_cells)
-    print(len(normal_cells), len(cell_cols))
-    tumor_cols = [c for c in cell_cols if c not in normal_set]
-
-    if len(tumor_cols) == 0:
-        raise ValueError("No tumor cells left after excluding normal cells.")
-
-    vals = df_chr.iloc[start_idx:end_idx][tumor_cols].values.ravel()
-    vals = pd.to_numeric(pd.Series(vals), errors="coerce").dropna()
-
-    if len(vals) == 0:
-        return np.nan
-
-    return float(np.nanmean(vals))
 
 
 def predict_loh_by_threshold_model(
@@ -355,7 +341,6 @@ def identify_loh_segments_one_chrom(
     sample,
     baf_dir,
     threshold_model,
-    normal_cells,
     threshold_feature="median_mBAF",
     min_depth=10,
     min_snps=10
@@ -364,7 +349,7 @@ def identify_loh_segments_one_chrom(
     Fast LOH-only mode.
 
     Uses:
-        tumor-only average total CN
+        total CN segments
         precomputed position-level BAF
         CN-specific mBAF threshold model
 
@@ -400,12 +385,10 @@ def identify_loh_segments_one_chrom(
         seg_start = int(df_chr["start"].iloc[bnds[seg_id]])
         seg_end = int(df_chr["end"].iloc[bnds[seg_id + 1] - 1])
 
-        avg_total_cn = calc_tumor_only_avg_cn(
-            df_chr=df_chr,
-            start_idx=bnds[seg_id],
-            end_idx=bnds[seg_id + 1],
-            normal_cells=normal_cells
-        )
+        cn_vals = df_chr.iloc[bnds[seg_id]:bnds[seg_id + 1], 3:].values.ravel()
+        cn_vals = pd.to_numeric(pd.Series(cn_vals), errors="coerce").dropna()
+
+        avg_total_cn = float(np.nanmean(cn_vals)) if len(cn_vals) > 0 else np.nan
 
         pred_loh, mbaf_val, n_pos_snps, rounded_cn, cn_threshold = predict_loh_by_threshold_model(
             df_pos_baf=df_pos_baf,
@@ -424,7 +407,7 @@ def identify_loh_segments_one_chrom(
             "loh_seg_id": seg_id,
             "start": seg_start,
             "end": seg_end,
-            "tumor_only_avg_total_cn": avg_total_cn,
+            "avg_total_cn": avg_total_cn,
             "rounded_total_cn": rounded_cn,
             "threshold_feature": threshold_feature,
             "feature_value": mbaf_val,
@@ -447,9 +430,10 @@ def phase_one_chrom(
     count_file,
     chrom,
     cell_cluster,
+    snp_source,
     normal_cells,
-    dtype, 
     convert=None,
+    snp_file=None,
     logger=None,
     sample=None,
     baf_dir=None,
@@ -472,6 +456,7 @@ def phase_one_chrom(
 
     cell2sector = {}
     ordered_cells = []
+    n = 0
 
     for x, cells in secter2cell.items():
         cells = [c.split("-")[0] for c in cells]
@@ -481,6 +466,7 @@ def phase_one_chrom(
             ordered_cells.append(cell)
 
         secter2cell[x] = cells
+        n += len(cells)
 
     ordered_subclones = list(secter2cell.keys())
 
@@ -488,11 +474,19 @@ def phase_one_chrom(
     df_baf["cell"] = [x.split("-")[0] for x in df_baf["cell"]]
     df_baf["cov"] = df_baf["ref"] + df_baf["alt"]
 
-    df_pos_baf = load_pos_baf_file(
-        baf_dir=baf_dir,
-        sample=sample,
-        chrom=chrom
-    )
+    df_pos_baf = None
+
+    if snp_source == "tumor":
+        df_pos_baf = load_pos_baf_file(
+            baf_dir=baf_dir,
+            sample=sample,
+            chrom=chrom
+        )
+
+    if snp_file is not None:
+        df_snp = pd.read_csv(snp_file, sep="\t", header=None)
+        df_snp.columns = ["chrom", "pos", "gt"]
+        df_snp = df_snp[df_snp["chrom"] == chrom]
 
     df = df[df["chrom"] == chrom].reset_index(drop=True)
 
@@ -546,84 +540,111 @@ def phase_one_chrom(
 
         df_baf_seg = df_baf[(df_baf["pos"] > seg[0]) & (df_baf["pos"] < seg[1])]
 
-        logger.info("Perform universal LOH decision and SNP filtering...")
-        logger.info(f"Before filter: {df_baf_seg.shape[0]} snps")
+        if snp_file is not None:
+            df_snp_seg = df_snp[(df_snp["pos"] > seg[0]) & (df_snp["pos"] < seg[1])]
+            homo_ratio = (df_snp_seg["gt"] == "1|1").mean()
 
-        df1 = df_baf_seg.groupby("pos")[["ref", "alt"]].sum().reset_index()
-        df1["baf"] = df1["alt"] / (df1["ref"] + df1["alt"])
-        df1["cov"] = df1["ref"] + df1["alt"]
-
-        homo_ratio = ((df1["baf"] < 0.2) | (df1["baf"] > 0.8)).mean()
-
-        avg_total_cn = calc_tumor_only_avg_cn(
-            df_chr=df,
-            start_idx=bnds[i],
-            end_idx=bnds[i + 1],
-            normal_cells=normal_cells
-        )
-
-        if df_pos_baf is not None:
-            pred_loh, mbaf_val, n_pos_snps, rounded_cn, cn_threshold = predict_loh_by_threshold_model(
-                df_pos_baf=df_pos_baf,
-                seg_start=seg[0],
-                seg_end=seg[1],
-                avg_total_cn=avg_total_cn,
-                threshold_model=threshold_model,
-                min_depth=min_depth,
-                min_snps=min_snps,
-                feature=threshold_feature
-            )
-
-            logger.info(
-                f"{chrom} seg={i} start={seg[0]} end={seg[1]} "
-                f"tumorOnlyAvgCN={avg_total_cn:.4f} roundedCN={rounded_cn} "
-                f"{threshold_feature}={mbaf_val} n_pos_snps={n_pos_snps} "
-                f"threshold={cn_threshold} pred_LOH={pred_loh}"
-            )
-
-            print(
-                f"{chrom} seg={i} start={seg[0]} end={seg[1]} "
-                f"tumorOnlyAvgCN={avg_total_cn:.4f} roundedCN={rounded_cn} "
-                f"{threshold_feature}={mbaf_val} n_pos_snps={n_pos_snps} "
-                f"threshold={cn_threshold} pred_LOH={pred_loh}"
-            )
-
-            if pred_loh:
+            if homo_ratio > 0.8:
                 loh_seg_ids.append(i)
-        else:
-            logger.warning(
-                f"{chrom} seg={i}: no position-level BAF available; fallback to homo_ratio"
-            )
-            if homo_ratio > 0.4:
-                loh_seg_ids.append(i)
+            elif homo_ratio < 0.6:
+                df1 = df_baf_seg.groupby("pos")[["ref", "alt"]].sum().reset_index()
+                df1["baf"] = df1["alt"] / (df1["ref"] + df1["alt"])
+                df1["cov"] = df1["ref"] + df1["alt"]
 
-        # Universal non-LOH SNP filtering.
-        # No tumor-specific branch anymore.
-        if i not in loh_seg_ids:
-            if dtype != '10x':
                 use_pos = set(
                     df1[
                         (df1["baf"] > 0.1)
                         & (df1["baf"] < 0.9)
-                        & (df1["cov"] > 2)
+                        & (df1["cov"] > 5)
                     ]["pos"]
                 )
-            else:
-                use_pos = set(
-                df1[
-                    (df1["baf"] > 0.3)
-                    & (df1["baf"] < 0.7)
-                    & (df1["cov"] > 2)
-                ]["pos"]
+
+                df_baf_seg = df_baf_seg[df_baf_seg["pos"].isin(use_pos)].reset_index()
+
+        if True:
+            logger.info("snp_source:" + snp_source)
+            logger.info("Perform filter...")
+            logger.info(f"Before filter: {df_baf_seg.shape[0]} snps")
+
+            df1 = df_baf_seg.groupby("pos")[["ref", "alt"]].sum().reset_index()
+            df1["baf"] = df1["alt"] / (df1["ref"] + df1["alt"])
+            df1["cov"] = df1["ref"] + df1["alt"]
+
+            homo_ratio = ((df1["baf"] < 0.2) | (df1["baf"] > 0.8)).mean()
+            avg_total_cn = np.nanmean(
+                    pd.to_numeric(
+                        pd.Series(df.iloc[bnds[i]:bnds[i + 1], 3:].values.ravel()),
+                        errors="coerce"
+                    )
                 )
+            if snp_source == "tumor":
+                
 
-            df_baf_seg = df_baf_seg[df_baf_seg["pos"].isin(use_pos)].reset_index()
+                if df_pos_baf is not None:
+                    pred_loh, mbaf_val, n_pos_snps, rounded_cn, cn_threshold = predict_loh_by_threshold_model(
+                        df_pos_baf=df_pos_baf,
+                        seg_start=seg[0],
+                        seg_end=seg[1],
+                        avg_total_cn=avg_total_cn,
+                        threshold_model=threshold_model,
+                        min_depth=min_depth,
+                        min_snps=min_snps,
+                        feature=threshold_feature
+                    )
 
-            logger.info(f"After filter: {df_baf_seg.shape[0]} snps")
+                    logger.info(
+                        f"{chrom} seg={i} start={seg[0]} end={seg[1]} "
+                        f"avgCN={avg_total_cn:.4f} roundedCN={rounded_cn} "
+                        f"{threshold_feature}={mbaf_val} n_pos_snps={n_pos_snps} "
+                        f"threshold={cn_threshold} pred_LOH={pred_loh}"
+                    )
 
-        if len(df_baf_seg) == 0:
-            logger.warning(f"{chrom} seg={i}: empty df_baf_seg after filtering; skip EM fallback to original segment SNPs")
-            df_baf_seg = df_baf[(df_baf["pos"] > seg[0]) & (df_baf["pos"] < seg[1])].copy()
+                    print(f"{chrom} seg={i} start={seg[0]} end={seg[1]} "
+                        f"avgCN={avg_total_cn:.4f} roundedCN={rounded_cn} "
+                        f"{threshold_feature}={mbaf_val} n_pos_snps={n_pos_snps} "
+                        f"threshold={cn_threshold} pred_LOH={pred_loh}")
+
+                    if pred_loh:
+                        loh_seg_ids.append(i)
+                else:
+                    logger.warning(
+                        f"{chrom} seg={i}: no position-level BAF available; fallback to homo_ratio"
+                    )
+                    if homo_ratio > 0.4:
+                        loh_seg_ids.append(i)
+            if snp_source == 'tumor':
+                if (i not in loh_seg_ids) and (round(avg_total_cn)<4):
+                    # for non-loh segs
+                    #   snp source is tumor: filter out SNPs with extreme baf for CN<5 non-loh seg
+                    #   snp source is tumor-normal: filter out SNPs with extreme baf for all non-loh seg
+                    use_pos = set(
+                        df1[
+                            (df1["baf"] > 0.3)
+                            & (df1["baf"] < 0.7)
+                            & (df1["cov"] > 2)
+                        ]["pos"]
+                    )
+
+                    df_baf_seg = df_baf_seg[df_baf_seg["pos"].isin(use_pos)].reset_index()
+
+                    logger.info(f"After filter: {df_baf_seg.shape[0]} snps")
+            else:
+                if (i not in loh_seg_ids) :
+                    # for non-loh segs
+                    #   snp source is tumor: filter out SNPs with extreme baf for CN<5 non-loh seg
+                    #   snp source is tumor-normal: filter out SNPs with extreme baf for all non-loh seg
+                    use_pos = set(
+                        df1[
+                            (df1["baf"] > 0.3)
+                            & (df1["baf"] < 0.7)
+                            & (df1["cov"] > 2)
+                        ]["pos"]
+                    )
+
+                    df_baf_seg = df_baf_seg[df_baf_seg["pos"].isin(use_pos)].reset_index()
+
+                    logger.info(f"After filter: {df_baf_seg.shape[0]} snps")
+                
 
         updated_theta, df_phase_seg = EM(df_baf_seg)
 
@@ -639,10 +660,10 @@ def phase_one_chrom(
 
         most_cn_evn = frac_even > 0.95
 
-        df1_after = df_baf_seg.groupby("pos")[["ref", "alt"]].sum().reset_index()
-        df1_after["baf"] = df1_after["alt"] / (df1_after["ref"] + df1_after["alt"])
+        df1 = df_baf_seg.groupby("pos")[["ref", "alt"]].sum().reset_index()
+        df1["baf"] = df1["alt"] / (df1["ref"] + df1["alt"])
 
-        og_vaf_balance = is_normal_centered_at_half(df1_after["baf"])
+        og_vaf_balance = is_normal_centered_at_half(df1["baf"])
         em_baf_balance = is_single_normal_mu_in_range(updated_theta["theta_A"])
 
         if most_cn_evn & og_vaf_balance & em_baf_balance:
@@ -671,13 +692,21 @@ def phase_one_chrom(
 
     df_baf["B"] = df_baf["ref"].where(df_baf["z"].eq(0), df_baf["alt"])
 
-    # Universal LOH override.
-    # BAF-threshold LOH decision overrides EM for LOH segments.
-    mask_loh = df_baf["seg_id"].isin(set(loh_seg_ids))
-    df_baf.loc[mask_loh, "B"] = df_baf.loc[mask_loh, "cov"].to_numpy()
+    if snp_file is not None:
+        mask = df_baf["seg_id"].isin(set(loh_seg_ids))
+        df_baf.loc[mask, "B"] = df_baf.loc[mask, "cov"].to_numpy()
+
+    if snp_source == "tumor":
+        # baf based LOH decision overides EM and balance seg
+        # print(set(df_baf["seg_id"]), set(loh_seg_ids))
+        mask = df_baf["seg_id"].isin(set(loh_seg_ids))
+        df_baf.loc[mask, "B"] = df_baf.loc[mask, "cov"].to_numpy()
+        # print('=======')
+        # print(df_baf.head())
 
     balance_seg_ids = set(balance_seg_ids) - set(loh_seg_ids)
-
+    # print(loh_seg_ids)
+    # print(balance_seg_ids)
     df_seg = df_baf.groupby(["seg_id", "cell"])[["B", "cov"]].sum().reset_index()
 
     mask_balance = (
@@ -689,7 +718,10 @@ def phase_one_chrom(
         df_seg.loc[mask_balance, "cov"] / 2
     ).to_numpy().round()
 
+
+    
     df_seg["baf_seg"] = df_seg["B"] / df_seg["cov"]
+    print(df_seg.head())
 
     df_sub = df_baf.groupby(["seg_id", "subclone"])[["B", "cov"]].sum().reset_index()
 
@@ -720,6 +752,7 @@ def phase_one_chrom(
     baf_sub = baf_sub.reindex(full_index, fill_value=0.5)
 
     row_repeats = [bnds[i + 1] - bnds[i] for i in baf_seg.index.tolist()]
+
     logger.info(f"{len(bnds) - 1}, {len(row_repeats)} " + str(row_repeats))
 
     col_repeats = [len(cells) for x, cells in secter2cell.items()]
@@ -930,12 +963,13 @@ def run_one_chrom(
     i,
     baf_dir,
     sample,
+    snp_source,
     df,
     convert,
+    snp_file,
     cell_cluster_file,
     normal_cells,
     logger,
-    dtype,
     threshold_model=None,
     threshold_feature="median_mBAF",
     min_depth=10,
@@ -950,9 +984,10 @@ def run_one_chrom(
         count_file=count_file,
         chrom=chrom,
         cell_cluster=cell_cluster_file,
+        snp_source=snp_source,
         normal_cells=normal_cells,
         convert=convert,
-        dtype= dtype,
+        snp_file=snp_file,
         logger=logger,
         sample=sample,
         baf_dir=baf_dir,
@@ -971,7 +1006,8 @@ def allele_CN(
     baf_dir,
     sample,
     convert,
-    dtype,
+    snp_source,
+    snp_file,
     n_thread=10,
     threshold_file=None,
     threshold_feature="median_mBAF",
@@ -982,9 +1018,6 @@ def allele_CN(
 ):
     cell_cluster_file = f"{total_cn_dir}/fine_cluster_result.pkl"
     cn_file = f"{total_cn_dir}/{sample}_smooth_seg.csv"
-
-    if threshold_file is None:
-        raise ValueError("--threshold_file is required for LOH decision.")
 
     if not os.path.exists(outdir):
         os.system("mkdir -p " + outdir)
@@ -1000,11 +1033,10 @@ def allele_CN(
 
     print("Total cells:", len(cell_cols))
     print("Normal cells:", len(normal_cells))
-    print("Tumor cells:", len(cell_cols) - len(normal_cells))
     print("Percentage normal: {:.2f}%".format(100 * len(normal_cells) / len(cell_cols)))
 
     chroms = set(df["chrom"])
-
+    
     useful_is = []
 
     for i in tqdm(range(1, 23)):
@@ -1025,24 +1057,35 @@ def allele_CN(
             raise ValueError(f"{only_chrom} is not present in CN file.")
 
         useful_is = [only_i]
+
+        # Usually no need for many jobs if running one chromosome
         n_thread = 1
 
-    print("Chromosomes to run:", [f"chr{i}" for i in useful_is])
+        print("Chromosomes to run:", [f"chr{i}" for i in useful_is])
 
-    threshold_model = load_threshold_model(
-        threshold_file=threshold_file,
-        feature=threshold_feature
-    )
+    print(snp_source)
 
-    if dtype == '10x':
-        threshold_model[4] = 0.1
-    print("Loaded LOH threshold model:")
-    print(threshold_model)
+    threshold_model = None
+
+    if snp_source == "tumor":
+        threshold_model = load_threshold_model(
+            threshold_file=threshold_file,
+            feature=threshold_feature
+        )
+
+        print("Loaded tumor LOH threshold model:")
+        print(threshold_model)
 
     # ========================================================
     # Fast LOH-only mode
     # ========================================================
     if loh_only:
+        # if snp_source != "tumor":
+        #     raise ValueError("--loh_only currently requires --snp_source tumor")
+
+        if threshold_model is None:
+            raise ValueError("--loh_only requires --threshold_file")
+
         print("Running LOH-only mode: skip EM, only identify LOH segments.")
 
         loh_parts = Parallel(n_jobs=n_thread)(
@@ -1052,7 +1095,6 @@ def allele_CN(
                 sample=sample,
                 baf_dir=baf_dir,
                 threshold_model=threshold_model,
-                normal_cells=normal_cells,
                 threshold_feature=threshold_feature,
                 min_depth=min_depth,
                 min_snps=min_snps
@@ -1079,7 +1121,7 @@ def allele_CN(
         loh_df[
             [
                 "chrom", "start", "end",
-                "tumor_only_avg_total_cn", "rounded_total_cn",
+                "avg_total_cn", "rounded_total_cn",
                 "threshold_feature", "feature_value",
                 "threshold", "n_snps", "is_loh"
             ]
@@ -1093,7 +1135,7 @@ def allele_CN(
         loh_df[loh_df["is_loh"] == "LOH"][
             [
                 "chrom", "start", "end",
-                "tumor_only_avg_total_cn", "rounded_total_cn",
+                "avg_total_cn", "rounded_total_cn",
                 "threshold_feature", "feature_value",
                 "threshold", "n_snps", "is_loh"
             ]
@@ -1124,12 +1166,13 @@ def allele_CN(
                 i,
                 baf_dir,
                 sample,
+                snp_source,
                 df,
                 convert,
+                snp_file,
                 cell_cluster_file,
                 normal_cells,
                 logger,
-                dtype,
                 threshold_model,
                 threshold_feature,
                 min_depth,
@@ -1143,12 +1186,13 @@ def allele_CN(
                 i,
                 baf_dir,
                 sample,
+                snp_source,
                 df,
                 convert,
+                snp_file,
                 cell_cluster_file,
                 normal_cells,
                 logger,
-                dtype,
                 threshold_model,
                 threshold_feature,
                 min_depth,
@@ -1240,10 +1284,16 @@ if __name__ == "__main__":
         )
 
         parser.add_argument(
-            "--dtype",
+            "--snp_source",
+            default="tumor-normal",
+            choices=["tumor", "tumor-normal", "matched-normal"],
+            help="SNP source type."
+        )
+
+        parser.add_argument(
+            "--snp_file",
             default=None,
-            choices= ['10x', 'other'],
-            help="10x or other type of sequencing."
+            help="Optional SNP genotype file."
         )
 
         parser.add_argument(
@@ -1256,7 +1306,7 @@ if __name__ == "__main__":
 
         parser.add_argument(
             "--threshold_file",
-            required=True,
+            default=None,
             help="Threshold model TSV, e.g. best_mBAF_threshold_by_CN.tsv"
         )
 
@@ -1292,7 +1342,7 @@ if __name__ == "__main__":
             default=None,
             help="Optional chromosome to run only one chromosome, e.g. chr20 or 20"
         )
-
+        
         return parser.parse_args()
 
     args = parse_args()
@@ -1303,7 +1353,8 @@ if __name__ == "__main__":
         baf_dir=args.baf_dir,
         sample=args.sample,
         convert=args.convert,
-        dtype = args.dtype,
+        snp_source=args.snp_source,
+        snp_file=args.snp_file,
         n_thread=args.n_thread,
         threshold_file=args.threshold_file,
         threshold_feature=args.threshold_feature,

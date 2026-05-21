@@ -448,7 +448,6 @@ def phase_one_chrom(
     chrom,
     cell_cluster,
     normal_cells,
-    dtype, 
     convert=None,
     logger=None,
     sample=None,
@@ -600,22 +599,13 @@ def phase_one_chrom(
         # Universal non-LOH SNP filtering.
         # No tumor-specific branch anymore.
         if i not in loh_seg_ids:
-            if dtype != '10x':
-                use_pos = set(
-                    df1[
-                        (df1["baf"] > 0.1)
-                        & (df1["baf"] < 0.9)
-                        & (df1["cov"] > 2)
-                    ]["pos"]
-                )
-            else:
-                use_pos = set(
+            use_pos = set(
                 df1[
                     (df1["baf"] > 0.3)
                     & (df1["baf"] < 0.7)
                     & (df1["cov"] > 2)
                 ]["pos"]
-                )
+            )
 
             df_baf_seg = df_baf_seg[df_baf_seg["pos"].isin(use_pos)].reset_index()
 
@@ -935,7 +925,6 @@ def run_one_chrom(
     cell_cluster_file,
     normal_cells,
     logger,
-    dtype,
     threshold_model=None,
     threshold_feature="median_mBAF",
     min_depth=10,
@@ -952,7 +941,6 @@ def run_one_chrom(
         cell_cluster=cell_cluster_file,
         normal_cells=normal_cells,
         convert=convert,
-        dtype= dtype,
         logger=logger,
         sample=sample,
         baf_dir=baf_dir,
@@ -971,7 +959,6 @@ def allele_CN(
     baf_dir,
     sample,
     convert,
-    dtype,
     n_thread=10,
     threshold_file=None,
     threshold_feature="median_mBAF",
@@ -1034,8 +1021,6 @@ def allele_CN(
         feature=threshold_feature
     )
 
-    if dtype == '10x':
-        threshold_model[4] = 0.1
     print("Loaded LOH threshold model:")
     print(threshold_model)
 
@@ -1129,7 +1114,6 @@ def allele_CN(
                 cell_cluster_file,
                 normal_cells,
                 logger,
-                dtype,
                 threshold_model,
                 threshold_feature,
                 min_depth,
@@ -1148,7 +1132,6 @@ def allele_CN(
                 cell_cluster_file,
                 normal_cells,
                 logger,
-                dtype,
                 threshold_model,
                 threshold_feature,
                 min_depth,
@@ -1240,13 +1223,6 @@ if __name__ == "__main__":
         )
 
         parser.add_argument(
-            "--dtype",
-            default=None,
-            choices= ['10x', 'other'],
-            help="10x or other type of sequencing."
-        )
-
-        parser.add_argument(
             "--n_thread",
             "-t",
             type=int,
@@ -1303,7 +1279,6 @@ if __name__ == "__main__":
         baf_dir=args.baf_dir,
         sample=args.sample,
         convert=args.convert,
-        dtype = args.dtype,
         n_thread=args.n_thread,
         threshold_file=args.threshold_file,
         threshold_feature=args.threshold_feature,

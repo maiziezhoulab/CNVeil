@@ -45,8 +45,9 @@ def plot(cnv, file=None, sort= False):
 
 
 def smooth_total_cn(cnveil_out_dir, ref_type):
-    cnv_file = glob.glob(f"{cnveil_out_dir}/CNV_*.csv")
-    sample = cnv_file.split('_')[1].split('.')[0]
+    cnv_file = glob.glob(f"{cnveil_out_dir}/CNV_*.csv")[0]
+    sample = cnv_file.split('/')[-1].replace("CNV_",'').split('.')[0]
+
 
     print('sample: ',sample)
     # if sample.startswith('s'):
@@ -68,7 +69,7 @@ def smooth_total_cn(cnveil_out_dir, ref_type):
 
     # Load chromosome sizes
     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-    chrom_sizes = pd.read_csv(f"{SCRIPT_DIR}/hg{ref_type}_ref_files/hg{ref_type}.chrom.sizes", sep="\t", header=None, names=["chrom", "length"])
+    chrom_sizes = pd.read_csv(f"{SCRIPT_DIR}/hg{ref_type}_ref_file/hg{ref_type}.chrom.sizes", sep="\t", header=None, names=["chrom", "length"])
 
     # Dictionary
     chr_lengths = dict(zip(chrom_sizes["chrom"], chrom_sizes["length"]))

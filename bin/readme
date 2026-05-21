@@ -1,0 +1,3 @@
+v2 has decent result, sectionE has a FP orange (0|4).
+TN has some 1|4 become 2|3, and become more flat due to the snp filter (baf 0.3 ~ 0.7)
+
