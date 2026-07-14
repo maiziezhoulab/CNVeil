@@ -8,10 +8,10 @@ def bin_reads_GC(merged_bam, split_bam_folder, refv, out_dir,cell_node_file, num
     Popen(cmd, shell= True).wait()
 
     if cell_node_file is None:
-        cmd = f"Rscript {SCRIPT_DIR}/Preprocess/reformat_bin_reads.R  -i {out_dir}/bin_reads/binned-GC  -o {out_dir}/RDmatrix.csv"
+        cmd = f"Rscript {SCRIPT_DIR}/Preprocess/reformat_bin_reads.r  -i {out_dir}/bin_reads/binned-GC  -o {out_dir}/RDmatrix.csv"
         Popen(cmd, shell= True).wait()
     else:
-        cmd = f"Rscript {SCRIPT_DIR}/Preprocess/reformat_bin_reads.R  -i {out_dir}/bin_reads/binned-GC  -o {out_dir}/RDmatrix.csv -t {cell_node_file}"
+        cmd = f"Rscript {SCRIPT_DIR}/Preprocess/reformat_bin_reads.r  -i {out_dir}/bin_reads/binned-GC  -o {out_dir}/RDmatrix.csv -t {cell_node_file}"
         Popen(cmd, shell= True).wait()
 
 
