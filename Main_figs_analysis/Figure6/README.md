@@ -10,7 +10,7 @@ Bulk WES copy number profiles are generated using ASCAT.
 
 Please install ASCAT and prepare the required reference files following the official documentation:
 
-- :https://github.com/VanLoo-lab/ascat
+- https://github.com/VanLoo-lab/ascat
 
 The detailed instructions for preparing targeted sequencing reference files, running allele counting, and generating ASCAT copy number segments are maintained by the ASCAT developers and are not duplicated in this repository.
 
