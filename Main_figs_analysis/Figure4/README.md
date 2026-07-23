@@ -26,7 +26,7 @@ Main inputs include:
 Run
 
 ```bash
-python scripts/benchmark_ploidy_summary.py
+python scripts/plot.py
 ```
 
 ## Output
