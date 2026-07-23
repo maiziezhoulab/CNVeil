@@ -1,4 +1,3 @@
-``
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -50,9 +49,7 @@ def get_tool_color(tool):
     return TOOL_COLORS.get(tool, '#95a5a6')
  
 
-xlsx_path = INPUT_FILE
- 
-PLOIDY_SUMMARY_TSV = '/data/maiziezhou_lab/Weiman/CNVeil/benchmark_sc/total/cnv_results/mean_ploidy_summary.tsv'
+xlsx_path = INPUT_FILE 
  
 # Read Excel TN sheet ONLY to get FACS (ground truth)
 df_tn_excel = pd.read_excel(xlsx_path, sheet_name='Big Data Ploidy')
@@ -65,7 +62,7 @@ if 'FACS' in df_tn_excel.columns:
 df_tn_ref = df_tn_excel[tn_ref_cols].copy() if tn_ref_cols else pd.DataFrame(index=df_tn_excel.index)
 
 # Read TSV summary and pivot to wide matrix: Dataset x Tool
-df_ploidy = pd.read_csv(PLOIDY_SUMMARY_TSV, sep='\t')
+df_ploidy = pd.read_csv(INPUT_FILE, sep='\t')
 
 # Standardize column names just in case
 expected_cols = {'Dataset', 'Tool', 'MeanPloidy'}
@@ -156,19 +153,12 @@ print(f"TN samples shape: {df_tn.shape}")
 print(f"10X samples shape: {df_10x.shape}")
 print(f"Subclone metrics: {len(df_subclone)} records")
 print(f"Overall metrics: {len(df_overall)} records") 
-
-# =============================================================================
-# Figure 1: Heatmap - Ploidy estimates across samples and tools
-# =============================================================================
+ 
 def plot_heatmap():
     """Create heatmap of ploidy estimates (TN1-8 and 10X only) with center=2 (white)."""
     import matplotlib.colors as mcolors
     from matplotlib.colors import LinearSegmentedColormap
 
-    # ----------------------------
-    # 1) Subset datasets
-    # ----------------------------
-    # TN1-TN8 only (robust to index being strings)
     tn_wanted = [f"TN{i}" for i in range(1, 9)]
     tn_idx = [x for x in tn_wanted if x in df_tn.index]
     if len(tn_idx) == 0:
@@ -178,9 +168,7 @@ def plot_heatmap():
     if df_10x.shape[0] == 0:
         raise ValueError("df_10x is empty. Check your Sheet1 reading logic.")
 
-    # ----------------------------
-    # 2) Tools to show (keep your existing lists, just cleaned)
-    # ----------------------------
+    
     tn_tools = ['FACS', 'CNVeil', 'AneuFinder', 'SPRINTER', 'Ginkgo', 'CHISEL', 
                 'SeCNV', 'Alleloscope', 'FLCNA','HMMcopy', 'CNRein', 'SEACON']
     x10_tools = ['10X infer', 'Ginkgo', 'AneuFinder', 'FLCNA', 'HMMcopy',
@@ -189,17 +177,12 @@ def plot_heatmap():
     tn_subset = df_tn.loc[tn_idx, [c for c in tn_tools if c in df_tn.columns]]
     x10_subset = df_10x.loc[:, [c for c in x10_tools if c in df_10x.columns]]
 
-    # ----------------------------
-    # 3) Colormap: blue -> white(at 2) -> red
-    # ----------------------------
-    # Darker blue near 0, white at 2, darker red as it increases
     cmap = LinearSegmentedColormap.from_list(
         "blue_white_red",
         ["#2166ac", "#ffffff", "#b2182b"],  # blue, white, red (classic diverging)
         N=256
     )
-
-    # --- NEW (safe for different shapes) ---
+ 
     tn_arr  = tn_subset.to_numpy(dtype=float)
     x10_arr = x10_subset.to_numpy(dtype=float)
 
@@ -218,10 +201,7 @@ def plot_heatmap():
         vmax = 2.1  # avoid degenerate norm
 
     norm = mcolors.TwoSlopeNorm(vmin=vmin, vcenter=2.0, vmax=vmax)
-
-    # ----------------------------
-    # 4) Plot
-    # ----------------------------
+ 
     fig, axes = plt.subplots(1, 2, figsize=(16, 8))
 
     # TN heatmap
@@ -324,7 +304,6 @@ def plot_scatter():
         'SeCNV', 'Alleloscope', 'FLCNA', 'HMMcopy', 'CNRein'
     ]
 
-    # Pass 1: compute r and MAE for every tool that has data
     stats = {}
     for tool in key_tools_tn:
         if tool in df_tn.columns:
@@ -334,12 +313,10 @@ def plot_scatter():
                 mae = np.mean(np.abs(valid['FACS'] - valid[tool]))
                 stats[tool] = {'r': r, 'mae': mae}
 
-    # Sort tools by MAE, low -> high
     sorted_tools = sorted(stats.keys(), key=lambda t: stats[t]['mae'])
 
     fig, axes = plt.subplots(2, 5, figsize=(16, 10))
 
-    # Pass 2: plot in MAE order
     for idx, tool in enumerate(sorted_tools):
         ax = axes[idx // 5, idx % 5]
         valid = df_tn[['FACS', tool]].dropna()
@@ -363,7 +340,6 @@ def plot_scatter():
             ax.annotate(sample, (valid.loc[sample, 'FACS'], valid.loc[sample, tool]),
                         fontsize=7, alpha=0.7, xytext=(3, 3), textcoords='offset points')
 
-    # Blank out any leftover panels if fewer than 10 tools have data
     for idx in range(len(sorted_tools), 10):
         axes[idx // 5, idx % 5].axis('off')
 
@@ -394,4 +370,3 @@ if __name__ == "__main__":
     print("  - fig1_heatmap.png/pdf")
     print("  - fig2_barplot_error.png/pdf")
     print("  - fig3_scatter.png/pdf") 
-  ``
