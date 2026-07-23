@@ -29,8 +29,7 @@ Each figure directory contains:
 ```text
 FigureX/
 ├── README.md          # Workflow documentation
-├── scripts/           # Analysis and plotting scripts 
-├── output/            # Generated analysis results or figures
+├── scripts/           # Analysis and plotting scripts  
 ```
 
 Some figures may omit directories that are not required.
