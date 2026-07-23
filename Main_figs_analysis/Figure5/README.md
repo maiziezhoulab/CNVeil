@@ -39,18 +39,10 @@ This step:
 - applies the same order to all methods;
 - generates one allele-specific copy number heatmap per method.
 
-### 2. Assemble genome-wide panels
+### 2. Generate selected-region panels
 
 ```bash
-Rscript scripts/02_assemble_heatmaps.R
-```
-
-This step combines the four method heatmaps and adds the shared allele-specific copy number legend.
-
-### 3. Generate selected-region panels
-
-```bash
-python scripts/03_plot_selected_regions.py
+python scripts/02_plot_selected_regions.py
 ```
 
 This step generates the BAF histograms and regional allele-specific copy number comparisons used in panels e–j.
