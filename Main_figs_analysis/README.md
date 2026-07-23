@@ -49,8 +49,6 @@ To reproduce a figure:
 4. Execute each script in the documented order.
 5. Generated results and figures will be written to the designated output directories.
 
-Each figure can be reproduced independently unless otherwise noted.
-
 ---
 
 
