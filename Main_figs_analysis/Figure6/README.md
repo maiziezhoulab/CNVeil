@@ -51,7 +51,7 @@ This step generates the bulk WES-derived ASCAT copy number segments.
 ### 2. Compare ASCAT and CNVeil pseudo-bulk profiles
 
 ```bash
-python scripts/02_plot_bulk_pseudobulk_concordance.py
+python scripts/02_concordance.py
 ```
 
 This step:
