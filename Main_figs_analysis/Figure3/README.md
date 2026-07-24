@@ -1,119 +1,155 @@
-# Figure 3: T10 total copy number benchmark
+# eval_T10
 
-This directory contains the T10 benchmark workflow used to evaluate total copy number inference across four tumor sectors.
+Scripts in this folder evaluate copy-number calls on the T10 real-data benchmark.
+The workflow assigns cells to T10 sectors by consensus across tools, evaluates each
+tool against the T10 gold CNV profile, and plots per-sector MSE distributions.
 
-Only Figure 3b is generated directly in this directory.
+## Files
 
-- Figure 3a uses the heatmap workflow provided under the Figure 2 analysis directory.
-- Figure 3c uses the weighted MSE summary generated under the Figure 4 analysis directory.
+- `t10_consensus.py`
+  - Reads CNV result TSV files for `CNVeil`, `Ginkgo`, `SCOPE`, and `SeCNV`.
+  - Estimates each cell's sector by comparing the cell mean copy number to fixed
+    sector ploidies:
+    - `A1`: 3.05
+    - `A2`: 2.85
+    - `H`: 1.7
+    - `D`: 2.0
+  - Keeps cells whose top sector assignment is supported by at least `k` tools.
+    The script currently runs with `k=4`, so all four tools must agree.
+  - Writes consensus outputs under `./consensus/`.
+  - Takes input/output paths, tool names, ploidies, sector names, and cell-column
+    name as command-line arguments.
 
-## Input
+- `t10_eval.py`
+  - Reads tool CNV result files and the consensus cell-to-sector map.
+  - Compares predicted per-bin copy number against the sector-specific gold CNV
+    profile from `T10_gold_CNV.tsv`.
+  - Computes per-cell MSE and Pearson correlation for each sector.
+  - Writes per-tool metric pickles and a combined summary table under
+    `./evaluation/`.
+  - Takes the tool result directory, gold CNV file, consensus file, output
+    directory, bin size, and cell-column name as command-line arguments.
 
-Example inputs are provided under:
+- `t10_plot.py`
+  - Reads `./evaluation/*_metrics.pkl`.
+  - Computes overall weighted MSE per tool, ranks tools from lowest to highest
+    MSE, and plots per-sector MSE boxplots.
+  - Writes outputs under `./plot/`.
+  - Takes the metrics directory, output directory, and sector order as
+    command-line arguments.
+
+## Expected Inputs
+
+CNV result directory for consensus:
 
 ```text
-example_data/figure3/
+/path/to/t10_cnv_results/
+  CNVeil.tsv
+  Ginkgo.tsv
+  SCOPE.tsv
+  SeCNV.tsv
 ```
 
-Expected files include:
+Each tool TSV should have:
+
+- one row per cell
+- first column named `Cell`
+- remaining columns named as genomic bins, for example `chr1:0-500000`
+- copy-number values in the bin columns
+
+Gold CNV file used by `t10_eval.py`, for example:
 
 ```text
-example_data/figure3/
-├── cnv_results/
-│   ├── CNVeil.tsv
-│   ├── Ginkgo.tsv
-│   ├── SCOPE.tsv
-│   ├── SeCNV.tsv
-│   └── additional_tool_results.tsv
-└── T10_gold_CNV.tsv
+/path/to/T10_gold_CNV.tsv
 ```
 
-Each tool result file should contain:
+The gold file must contain:
 
-- one row per cell;
-- a cell identifier column named `Cell`;
-- genomic bin columns such as `chr1:0-500000`;
-- inferred total copy number values.
+- `CHROM`
+- `start_i`
+- one column per consensus sector, such as `A1`, `A2`, `H`, and `D`
 
-The gold-standard table should contain:
+## How To Run
 
-```text
-CHROM
-start_i
-A1
-A2
-H
-D
-```
-
-## Workflow
-
-### 1. Assign consensus T10 sectors
+Run these commands from the `eval_T10` folder:
 
 ```bash
-python scripts/01_assign_consensus_sectors.py \
-  --input_dir example_data/figure3/cnv_results \
-  --output_dir results/figure3/consensus \
+cd eval_T10
+```
+
+1. Build consensus cell-to-sector assignments:
+
+```bash
+python3 t10_consensus.py \
+  --input_dir /path/to/t10_cnv_results \
+  --output_dir consensus \
   --tools CNVeil,Ginkgo,SCOPE,SeCNV \
   --k 4
 ```
 
-Cells are assigned to the closest expected sector ploidy:
-
-| Sector | Expected ploidy |
-|---|---:|
-| A1 | 3.05 |
-| A2 | 2.85 |
-| H | 1.70 |
-| D | 2.00 |
-
-A cell is retained when at least `k` tools agree on its sector assignment.
-
-### 2. Evaluate copy number accuracy
-
-```bash
-python scripts/02_evaluate_T10_mse.py \
-  --input_dir example_data/figure3/cnv_results \
-  --gold_tsv example_data/figure3/T10_gold_CNV.tsv \
-  --consensus_pkl results/figure3/consensus/cell2sector_consensus.pkl \
-  --output_dir results/figure3/evaluation
-```
-
-This step compares each cell's inferred copy number profile against the gold-standard profile for its assigned sector.
-
-Per-cell metrics include:
-
-- mean squared error;
-- Pearson correlation.
-
-### 3. Plot sector-specific MSE distributions
-
-```bash
-python scripts/03_plot_T10_mse.py \
-  --metrics_dir results/figure3/evaluation \
-  --output_dir results/figure3/plot
-```
-
-This step generates the sector-specific MSE boxplots shown in Figure 3b.
-
-## Output
+Outputs:
 
 ```text
-results/figure3/
-├── consensus/
-│   ├── cell2sector_consensus.pkl
-│   ├── cell2sector_support.pkl
-│   └── report.txt
-├── evaluation/
-│   ├── <tool>_metrics.pkl
-│   └── summary.tsv
-└── plot/
-    ├── overall_weighted_mse.tsv
-    └── mse_boxplots_by_sector.pdf
+consensus/cell2sector_consensus.pkl
+consensus/cell2sector_support.pkl
+consensus/report.txt
 ```
 
-## Figure panel sources
+2. Evaluate each tool against the T10 gold CNV profile:
 
-- **Figure 3a:** generated using the heatmap workflow in the Figure 2 directory.
-- **Figure 3b:** generated by this directory.
-- **Figure 3c:** generated from the weighted MSE summary in the Figure 4 directory.
+```bash
+python3 t10_eval.py \
+  --input_dir /path/to/t10_cnv_results \
+  --gold_tsv /path/to/T10_gold_CNV.tsv \
+  --consensus_pkl consensus/cell2sector_consensus.pkl \
+  --output_dir evaluation
+```
+
+Outputs:
+
+```text
+evaluation/<tool>_metrics.pkl
+evaluation/summary.tsv
+```
+
+3. Plot and rank tools by weighted MSE:
+
+```bash
+python3 t10_plot.py \
+  --metrics_dir evaluation \
+  --output_dir plot
+```
+
+Outputs:
+
+```text
+plot/overall_weighted_mse.tsv
+plot/mse_boxplots_by_sector.pdf
+```
+
+## Dependencies
+
+The scripts use:
+
+- Python 3
+- `numpy`
+- `pandas`
+- `scipy`
+- `scikit-learn`
+- `matplotlib`
+
+Install them in the active environment if needed:
+
+```bash
+pip install numpy pandas scipy scikit-learn matplotlib
+```
+
+## Notes And Caveats
+
+- `t10_eval.py` ignores files containing `rcCAE` in the T10 result directory.
+  Change this with `--exclude`, or pass `--exclude ''` to disable filtering.
+- Bin starts are converted to `start_i` using a default `bin_size` of 500 kb.
+  Change this with `--bin_size`.
+- `t10_eval.py` expects the consensus file at
+  `consensus/cell2sector_consensus.pkl`, so run `t10_consensus.py` first.
+- If tool files use a different cell-column name, pass `--cell_col`.
