@@ -6,7 +6,7 @@ The transcriptomic preprocessing workflow used for the dosage sensitivity analys
 
 - [wellDR-seq GitHub repository](https://github.com/navinlabcode/wellDR-seq)
 
-The original repository provides RNA preprocessing scripts, including the Perl FASTQ conversion script, STAR-based alignment workflow, and the chip barcode index file. :contentReference[oaicite:0]{index=0}
+The original repository provides RNA preprocessing scripts, including the Perl FASTQ conversion script, STAR-based alignment workflow, and the chip barcode index file. 
 
 ## Prerequisites
 
