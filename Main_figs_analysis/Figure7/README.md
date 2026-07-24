@@ -12,7 +12,7 @@ The original repository provides RNA preprocessing scripts, including the Perl F
 
 Phylogenetic reconstruction was performed using MEDICC2:
 
-- [MEDICC2]([https://github.com/cbg-ethz/MEDICC2](https://bitbucket.org/schwarzlab/medicc2/src/master/))
+- [MEDICC2]([[https://github.com/cbg-ethz/MEDICC2](https://bitbucket.org/schwarzlab/medicc2/src/master/)])
 
 RNA preprocessing requires:
 
