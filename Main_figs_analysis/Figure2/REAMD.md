@@ -58,7 +58,7 @@ This step generates the recall, precision, and F1 distributions shown in Figure 
 ### 3. Generate representative heatmaps
 
 ```bash
-Rscript scripts03_reorder_plot.R
+Rscript scripts/03_reorder_plot.R
 ```
 
 This step plots the ground-truth and inferred integer CN profiles for the representative ploidy-5 simulation shown in Figure 2b.
