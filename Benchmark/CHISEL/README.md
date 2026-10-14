@@ -21,7 +21,7 @@ For Slurm, use `sbatch --account=YOUR_ACCOUNT --partition=YOUR_PARTITION submit.
 | Inputs | Existing GATK VCF; hg19 phased genotype panels/map; rename.txt; indexed barcoded BAM and FASTA |
 | Reference | hg19 |
 | Eagle | 10 threads; uncompressed VCF |
-| CHISEL | nonormal; seed=12; bin=5Mb |
+| CHISEL | nonormal; seed=12; bin=500kb |
 | Outputs | Phased chromosome VCFs; all_chromosomes.tsv; native CHISEL results |
 
 Variant calling/BAM preparation remain upstream. The original TSV query is retained without new filtering; it assumes numeric chromosome names in Eagle output. Activate CHISEL before run.sh.
