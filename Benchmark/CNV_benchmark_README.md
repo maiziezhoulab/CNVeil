@@ -21,8 +21,6 @@ This directory contains scripts for running 12 tools in a single-cell DNA copy-n
 
 ## Inputs and reference genome
 
-The scripts use **hg19/GRCh37**. BAMs, BED files, variant coordinates, and reference resources must use the same genome assembly. Changing a reference path does not convert data aligned to another assembly.
-
 Input requirements differ by tool: some workflows use individual-cell BAMs, while others use merged barcoded BAMs, BED files, phased variants, or precomputed matrices. Check the tool-specific instructions before running. Alleloscope and SCOPE resume from precomputed objects by default.
 
 ## Running a tool
