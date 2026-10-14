@@ -11,7 +11,7 @@ Edit paths in `run.sh`. Activate your working SeCNV environment and use `bash ru
 | Inputs | Directory of individual-cell BAMs; indexed hg19 FASTA |
 | Software | Existing SeCNV Scripts directory and working environment |
 | Reference assets | hg19 reference and matching mappability assets required by SeCNV |
-| Bin size | 50,000 bp (50 kb), matching the supplied command |
+| Bin size | 500,000 bp |
 | Other settings | Original installed-tool defaults |
 | Output | Native SeCNV results in OUTPUT_DIR |
 
