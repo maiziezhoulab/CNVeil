@@ -6,13 +6,13 @@ Raw tool outputs and processed benchmark results are organized into seven indepe
 
 | Archive | Datasets | Download |
 |---|---|---|
-| `benchmark_01.tar.gz` | S0_section_A, S0_section_B | [Zenodo]([ZENODO_LINK_01](https://doi.org/10.5281/zenodo.23458030)) |
-| `benchmark_02.tar.gz` | S0_section_C, S0_section_D | [Zenodo]([ZENODO_LINK_02](https://doi.org/10.5281/zenodo.23458042)) |
-| `benchmark_03.tar.gz` | S0_section_E, KTN302, T10, T16, wellDR-seq | [Zenodo]([ZENODO_LINK_03](https://doi.org/10.5281/zenodo.23458049)) |
-| `benchmark_04.tar.gz` | TN1, TN2, p1, p3, p4, p5, shared files | [Zenodo]([ZENODO_LINK_04](https://doi.org/10.5281/zenodo.23458052)) |
-| `benchmark_05.tar.gz` | TN3, TN4 | [Zenodo]([ZENODO_LINK_05](https://doi.org/10.5281/zenodo.23458056)) |
-| `benchmark_06.tar.gz` | TN5, TN6 | [Zenodo]([ZENODO_LINK_06](https://doi.org/10.5281/zenodo.23458064)) |
-| `benchmark_07.tar.gz` | TN7, TN8 | [Zenodo]([ZENODO_LINK_07](https://doi.org/10.5281/zenodo.23458070)) |
+| `benchmark_01.tar.gz` | S0_section_A, S0_section_B | [Zenodo](https://doi.org/10.5281/zenodo.23458030) |
+| `benchmark_02.tar.gz` | S0_section_C, S0_section_D | [Zenodo](https://doi.org/10.5281/zenodo.23458042) |
+| `benchmark_03.tar.gz` | S0_section_E, KTN302, T10, T16, wellDR-seq | [Zenodo](https://doi.org/10.5281/zenodo.23458049) |
+| `benchmark_04.tar.gz` | TN1, TN2, p1, p3, p4, p5, shared files | [Zenodo](https://doi.org/10.5281/zenodo.23458052) |
+| `benchmark_05.tar.gz` | TN3, TN4 | [Zenodo](https://doi.org/10.5281/zenodo.23458056) |
+| `benchmark_06.tar.gz` | TN5, TN6 | [Zenodo](https://doi.org/10.5281/zenodo.23458064) |
+| `benchmark_07.tar.gz` | TN7, TN8 | [Zenodo](https://doi.org/10.5281/zenodo.23458070) |
 
 Each archive is limited to 50 GB (50,000,000,000 bytes).
 
